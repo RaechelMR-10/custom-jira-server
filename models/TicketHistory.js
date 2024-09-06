@@ -1,7 +1,8 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../database');
 
-const Projects = sequelize.define('Projects',{
+
+const TicketHistory = sequelize.define('TicketHistory',{
     id:{
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -11,24 +12,28 @@ const Projects = sequelize.define('Projects',{
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
     },
-    name:{
-        type: DataTypes.STRING,
-        allowNull: false
-    },
     description:{
         type: DataTypes.STRING,
         allowNull: false
     },
-    organization_id:{
+    user_id:{
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references:{
-            model:'Organization',
+        allowNull: false,
+        references: {
+            model: 'Users',
             key: 'id'
+        }
+    },
+    ticket_id:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Tickets',
+            key:'id'
         }
     }
 },{
-        tableName: 'Projects'
-    
+    tableName: 'TicketHistory'
 })
-module.exports = Projects;
+
+module.exports = TicketHistory;
