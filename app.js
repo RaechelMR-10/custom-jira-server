@@ -1,11 +1,21 @@
-const http = require('http');
+const express = require('express');
+const { sequelize } = require('./models'); // Import sequelize instance from models
+const app = express();
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello, World!\n');
-});
+// Sync database and start server
+sequelize.sync({ force: false }) // Use force: true in development to drop and recreate tables
+    .then(() => {
+        console.log('Database synced successfully');
 
-server.listen(3000, () => {
-  console.log('Server running at http://127.0.0.1:3000/');
+        // Start Express server only after the database is synced
+        app.listen(3000, () => {
+            console.log('Server running at http://127.0.0.1:3000/');
+        });
+    })
+    .catch((error) => {
+        console.error('Error syncing database:', error);
+    });
+
+app.get('/', (req, res) => {
+  res.status(200).send('Hello, World!\n');
 });

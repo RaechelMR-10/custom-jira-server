@@ -18,7 +18,7 @@ const signup = async (req, res) => {
     }
 };
 
-const login = async (req, res) => {
+const auth = async (req, res) => {
     try {
         const { username, password } = req.body;
         
@@ -40,4 +40,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { signup, login };
+module.exports = { signup, auth };
