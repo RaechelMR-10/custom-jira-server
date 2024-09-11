@@ -1,7 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('CustommJira', 'Raechel', '',{
-    host: 'localhost',
+const sequelize = new Sequelize(process.env.Db_Name, process.env.Db_User , '',{
+    host: process.env.Db_HOST,
+    port: process.env.Db_PORT,
     dialect: 'mssql',
     dialectOptions: {
         options:{
@@ -10,6 +11,7 @@ const sequelize = new Sequelize('CustommJira', 'Raechel', '',{
             trustServerCertificate: true, 
         },
     },
+    logging: console.log
 });
 
 module.exports = sequelize;
