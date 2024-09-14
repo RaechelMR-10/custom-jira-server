@@ -1,5 +1,5 @@
 // models/index.js
-const sequelize = require('../database');
+const sequelize = require('../config/database');
 const Users = require('./Users'); 
 const Organization = require('./Organization'); 
 const Projects = require('./Projects'); 
