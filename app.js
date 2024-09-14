@@ -1,21 +1,15 @@
-const express = require('express');
-const { sequelize } = require('./models'); // Import sequelize instance from models
-const app = express();
+// app.js
+require('dotenv').config();
+const sequelize = require('./config/database');
+const User = require('./models/Users');
+const tediousConnection = require('./config/tediousconn'); // Optional, if you need tedious for other purposes
 
-// Sync database and start server
-sequelize.sync({ force: false }) // Use force: true in development to drop and recreate tables
+// Sync models with the database
+sequelize.sync({ alter: true }) // Use { force: true } to drop and recreate tables
     .then(() => {
-        console.log('Database synced successfully');
-
-        // Start Express server only after the database is synced
-        app.listen(3000, () => {
-            console.log('Server running at http://127.0.0.1:3000/');
-        });
+        console.log("Models synchronized with the database.");
+        // You can start your application logic here
     })
-    .catch((error) => {
-        console.error('Error syncing database:', error);
+    .catch(err => {
+        console.error('Error syncing models:', err);
     });
-
-app.get('/', (req, res) => {
-  res.status(200).send('Hello, World!\n');
-});

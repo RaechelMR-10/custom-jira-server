@@ -1,18 +1,14 @@
-const config = require('../config/config');
+require('dotenv').config();
 const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize(
-  config.development.database,
-  null,
-  null,
-  {
-    host: config.development.host,
-    dialect: config.development.dialect,
-    dialectModule: config.development.dialectModule,
-    dialectOptions: config.development.dialectOptions
-  }
-);
-sequelize.authenticate()
-  .then(() => console.log('Connection established successfully.'))
-  .catch(err => console.error('Unable to connect to the database:', err));
+
+// Initialize Sequelize with your SQL Server configuration
+const sequelize = new Sequelize('CustomJira', process.env.DB_USER, process.env.DB_PASSWORD, {
+    host: 'LAPTOP-G5DE1LDD',
+    dialect: 'mssql',
+    dialectOptions: {
+        encrypt: true ,
+        trustServerCertificate: true
+    }
+});
 
 module.exports = sequelize;
