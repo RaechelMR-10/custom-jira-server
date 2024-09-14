@@ -75,11 +75,38 @@ exports.getHistoryByTicketId = async (req, res) => {
     }
 };
 
-// Get all ticket history entries
+// Get all ticket history entries with pagination
 exports.getAllTicketHistory = async (req, res) => {
     try {
-        const historyEntries = await TicketHistory.findAll();
-        res.json(historyEntries);
+        // Extract page and pageSize from query parameters
+        const page = parseInt(req.query.page, 10) || 1;  // Default to page 1 if not provided
+        const pageSize = parseInt(req.query.pageSize, 10) || 10;  // Default to pageSize 10 if not provided
+
+        // Validate that page and pageSize are positive integers
+        if (page <= 0 || pageSize <= 0) {
+            return res.status(400).json({ error: 'Page and pageSize must be positive integers.' });
+        }
+
+        // Calculate offset
+        const offset = (page - 1) * pageSize;
+
+        // Fetch history entries with pagination
+        const historyEntries = await TicketHistory.findAll({
+            limit: pageSize,
+            offset: offset
+        });
+
+        // Get total count of history entries
+        const totalHistoryEntries = await TicketHistory.count();
+
+        // Respond with paginated results
+        res.json({
+            historyEntries,
+            totalHistoryEntries,
+            page,
+            pageSize,
+            totalPages: Math.ceil(totalHistoryEntries / pageSize)
+        });
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the ticket history entries.' });
     }

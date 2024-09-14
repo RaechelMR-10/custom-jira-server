@@ -25,14 +25,39 @@ const getUser = async (id) => {
     }
 };
 
-const getAllUsers = async () => {
+
+const getAllUsers = async (page, pageSize) => {
     try {
-        const users = await Users.findAll();
-        return users.map(hideSensitiveData);
+        // Validate that page and pageSize are positive integers
+        if (page <= 0 || pageSize <= 0) {
+            throw new Error('Page and pageSize must be positive integers.');
+        }
+
+        // Calculate the offset based on the page and pageSize
+        const offset = (page - 1) * pageSize;
+
+        // Fetch users with pagination
+        const users = await Users.findAll({
+            limit: pageSize,
+            offset: offset
+        });
+
+        // Get total count of users
+        const totalUsers = await Users.count();
+
+        // Map users to hide sensitive data
+        return {
+            users: users.map(hideSensitiveData),
+            totalUsers,
+            page,
+            pageSize,
+            totalPages: Math.ceil(totalUsers / pageSize)
+        };
     } catch (error) {
         throw new Error(`Error getting users: ${error.message}`);
     }
 };
+
 
 
 const hideSensitiveData = (user) => {

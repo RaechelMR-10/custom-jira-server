@@ -22,12 +22,26 @@ router.get('/users/:id', async (req, res) => {
     }
 });
 
-// Get All Users
-router.get('/users', async (req, res) => {
+
+// Route handler
+app.get('/users', async (req, res) => {
     try {
-        const users = await getAllUsers();
-        res.json(users);
+        // Extract page and pageSize from query parameters
+        const page = parseInt(req.query.page, 10);
+        const pageSize = parseInt(req.query.pageSize, 10);
+
+        // Check if page and pageSize are valid numbers
+        if (isNaN(page) || isNaN(pageSize)) {
+            return res.status(400).json({ error: 'Invalid page or pageSize parameter' });
+        }
+
+        // Fetch users with pagination
+        const result = await getAllUsers(page, pageSize);
+
+        // Send the result as a JSON response
+        res.json(result);
     } catch (error) {
+        // Handle any errors
         res.status(500).json({ error: error.message });
     }
 });

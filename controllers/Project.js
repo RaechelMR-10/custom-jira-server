@@ -45,15 +45,43 @@ exports.updateProject = async (req, res) => {
     }
 };
 
-// Get all projects
+// Get all projects with pagination
 exports.getAllProjects = async (req, res) => {
     try {
-        const projects = await Projects.findAll();
-        res.json(projects);
+        // Extract page and pageSize from query parameters
+        const page = parseInt(req.query.page, 10) || 1;  // Default to page 1 if not provided
+        const pageSize = parseInt(req.query.pageSize, 10) || 10;  // Default to pageSize 10 if not provided
+
+        // Validate that page and pageSize are positive integers
+        if (page <= 0 || pageSize <= 0) {
+            return res.status(400).json({ error: 'Page and pageSize must be positive integers.' });
+        }
+
+        // Calculate offset
+        const offset = (page - 1) * pageSize;
+
+        // Fetch projects with pagination
+        const projects = await Projects.findAll({
+            limit: pageSize,
+            offset: offset
+        });
+
+        // Get total count of projects
+        const totalProjects = await Projects.count();
+
+        // Respond with paginated results
+        res.json({
+            projects,
+            totalProjects,
+            page,
+            pageSize,
+            totalPages: Math.ceil(totalProjects / pageSize)
+        });
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the projects.' });
     }
 };
+
 
 // Get all projects by organization ID
 exports.getProjectsByOrganizationId = async (req, res) => {

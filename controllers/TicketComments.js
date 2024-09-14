@@ -62,18 +62,46 @@ exports.deleteTicketComment = async (req, res) => {
     }
 };
 
-// Get all comments for a specific ticket
+// Get all comments for a specific ticket with pagination
 exports.getCommentsByTicketId = async (req, res) => {
     try {
         const { ticket_id } = req.params;
+        
+        // Extract page and pageSize from query parameters
+        const page = parseInt(req.query.page, 10) || 1;  // Default to page 1 if not provided
+        const pageSize = parseInt(req.query.pageSize, 10) || 10;  // Default to pageSize 10 if not provided
+
+        // Validate that page and pageSize are positive integers
+        if (page <= 0 || pageSize <= 0) {
+            return res.status(400).json({ error: 'Page and pageSize must be positive integers.' });
+        }
+
+        // Calculate offset
+        const offset = (page - 1) * pageSize;
+
+        // Fetch comments with pagination
         const comments = await TicketComments.findAll({
-            where: { ticket_id }
+            where: { ticket_id },
+            limit: pageSize,
+            offset: offset
         });
-        res.json(comments);
+
+        // Get total count of comments for the ticket
+        const totalComments = await TicketComments.count({ where: { ticket_id } });
+
+        // Respond with paginated results
+        res.json({
+            comments,
+            totalComments,
+            page,
+            pageSize,
+            totalPages: Math.ceil(totalComments / pageSize)
+        });
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching comments for the ticket.' });
     }
 };
+
 
 // Get all ticket comments
 exports.getAllTicketComments = async (req, res) => {

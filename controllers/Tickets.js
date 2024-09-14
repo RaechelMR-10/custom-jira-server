@@ -62,15 +62,43 @@ exports.deleteTicket = async (req, res) => {
     }
 };
 
-// Get all tickets
+// Get all tickets with pagination
 exports.getAllTickets = async (req, res) => {
     try {
-        const tickets = await Tickets.findAll();
-        res.json(tickets);
+        // Extract page and pageSize from query parameters
+        const page = parseInt(req.query.page, 10) || 1;  // Default to page 1 if not provided
+        const pageSize = parseInt(req.query.pageSize, 10) || 10;  // Default to pageSize 10 if not provided
+
+        // Validate that page and pageSize are positive integers
+        if (page <= 0 || pageSize <= 0) {
+            return res.status(400).json({ error: 'Page and pageSize must be positive integers.' });
+        }
+
+        // Calculate offset
+        const offset = (page - 1) * pageSize;
+
+        // Fetch tickets with pagination
+        const tickets = await Tickets.findAll({
+            limit: pageSize,
+            offset: offset
+        });
+
+        // Get total count of tickets
+        const totalTickets = await Tickets.count();
+
+        // Respond with paginated results
+        res.json({
+            tickets,
+            totalTickets,
+            page,
+            pageSize,
+            totalPages: Math.ceil(totalTickets / pageSize)
+        });
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the tickets.' });
     }
 };
+
 
 // Get all tickets by status ID
 exports.getTicketsByStatusId = async (req, res) => {
