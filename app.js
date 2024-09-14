@@ -17,6 +17,12 @@ const router = express.Router();
 const userRouter = require('./routes/user')
 const authRouter = require('./routes/account')
 const projectsRouter = require('./routes/project');
+const statusRouter = require('./routes/status');
+const organizationRouter = require('./routes/organization');
+const typesRouter = require('./routes/types');
+const ticketCommentsRouter = require('./routes/ticketcomments'); 
+const ticketsRouter = require('./routes/tickets'); 
+const ticketHistoryRouter = require('./routes/tickethistory')
 const app = express();
 const port = 3001
 // Sync models with the database
@@ -41,6 +47,14 @@ app.use(session({
   app.use('/user', userRouter);
   app.use('/auth', authRouter);
   app.use('/projects', projectsRouter);
+  app.use('/status', statusRouter);
+  app.use('/organization', organizationRouter);
+  app.use('/types', typesRouter);
+  app.use('/ticketcomments', ticketCommentsRouter);
+  app.use('/tickets', ticketsRouter);
+  app.use('/ticketchistory', ticketHistoryRouter);
+
+  
 
   
   app.listen(port, () => {

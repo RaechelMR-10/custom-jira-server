@@ -67,3 +67,20 @@ exports.getProjectsByOrganizationId = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching the projects by organization ID.' });
     }
 };
+
+// Delete a project by ID
+exports.deleteProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Projects.destroy({
+            where: { id }
+        });
+        if (deleted) {
+            res.status(204).send(); // No content
+        } else {
+            res.status(404).json({ error: 'Project not found.' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while deleting the project.' });
+    }
+};
