@@ -1,4 +1,4 @@
-const Status = require('../models/Status'); // Adjust the path as necessary
+const Status = require('../models/Status'); 
 
 // Create a new status
 exports.createStatus = async (req, res) => {
