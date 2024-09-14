@@ -1,22 +1,43 @@
-const Users = require('../models/Users');
+const Users = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET= process.env.jwt_secret_token;
 
-
-
 const signup = async (req, res) => {
     try {
-        const { first_name, last_name, email, username, password, organization_id } = req.body;
+        const { first_name, last_name, email, username, password, organization_id, color } = req.body;
 
-        const user = await Users.create({ first_name, last_name, email, username, password, organization_id });
+        // console.log('Received data:', {
+        //     first_name,
+        //     last_name,
+        //     email,
+        //     username,
+        //     password,
+        //     organization_id,
+        //     color
+        // });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await Users.create({
+            first_name,
+            last_name,
+            email,
+            username,
+            password: hashedPassword,
+            organization_id,
+            color: color || '#878787'  // Default to '#878787' if no color is provided
+        });
         
         res.status(201).json({ message: 'User created successfully', user });
     } catch (error) {
+        console.error('Error creating user:', error); 
         res.status(500).json({ error: 'Error creating user', details: error.message });
     }
 };
+
+
 
 const auth = async (req, res) => {
     try {
@@ -36,7 +57,7 @@ const auth = async (req, res) => {
         
         res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
-        res.status(500).json({ error: 'Error logging in', details: error.message });
+        res.status(500).json({ error: 'Error logging in', details: error.stack });
     }
 };
 

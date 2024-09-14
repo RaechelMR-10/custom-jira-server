@@ -1,10 +1,11 @@
 const express = require('express');
 const { signup, auth } = require('../controllers/Account');
-const app = express();
 
-app.use(express.json()); 
+// Create an instance of Router, not express application
+const router = express.Router();
 
 // Define routes
-app.post('/signup', signup);
-app.post('/login', auth);
+router.post('/signup', signup);
+router.post('/login', auth);
 
+module.exports = router;

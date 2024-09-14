@@ -1,7 +1,6 @@
 // models/User.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const defaultColor = '#878787'
 const User = sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
@@ -36,8 +35,7 @@ const User = sequelize.define('User', {
     },
     color:{
         type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: defaultColor
+        allowNull: false
     },
     organization_id: {
         type: DataTypes.INTEGER,

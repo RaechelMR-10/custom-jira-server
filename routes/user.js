@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { updateUser, getUser, getAllUsers } = require('../controllers/userController');
+const { updateUser, getUser, getAllUsers } = require('../controllers/User');
 
 // Update User
 router.put('/users/:id', async (req, res) => {
