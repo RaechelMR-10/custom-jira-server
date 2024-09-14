@@ -1,26 +1,28 @@
-const {DataTypes}  = require('sequelize');
+// models/Organization.js
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Organization = sequelize.define('Organization',{
-    id:{
+const Organization = sequelize.define('Organization', {
+    id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true
     },
-    guid:{
+    guid: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
     },
-    name:{
+    name: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    description:{
+    description: {
         type: DataTypes.STRING,
         allowNull: false
     }
-},{
-    tableName: 'Organization'
-}
-)
+}, {
+    tableName: 'Organizations', 
+    timestamps: false 
+});
+
 module.exports = Organization;

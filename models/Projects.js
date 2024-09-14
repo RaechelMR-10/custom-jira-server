@@ -23,7 +23,7 @@ const Projects = sequelize.define('Projects',{
         type: DataTypes.INTEGER,
         allowNull: true,
         references:{
-            model:'Organization',
+            model:'Organizations',
             key: 'id'
         }
     }

@@ -1,7 +1,8 @@
-const {DataTypes} = require('sequelize');
+// models/User.js
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-
-const Users = sequelize.define('User',{
+const defaultColor = '#878787'
+const User = sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -9,39 +10,46 @@ const Users = sequelize.define('User',{
     },
     guid: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-    }, 
+        defaultValue: DataTypes.UUIDV4
+    },
     first_name: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    last_name:{
+    last_name: {
         type: DataTypes.STRING,
         allowNull: false
     },
     email: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: false 
     },
     username: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: false 
     },
     password: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    organization_id:{
+    color:{
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: defaultColor
+    },
+    organization_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        references:{
-            model:'Organization',
+        references: {
+            model: 'Organizations', 
             key: 'id'
         }
     }
-},  {
-    tableName: 'Users'
+}, {
+    tableName: 'Users',
+    timestamps: true 
 });
 
-
-module.exports = Users;
+module.exports = User;
