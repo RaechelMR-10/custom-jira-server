@@ -30,8 +30,8 @@ exports.getProjectById = async (req, res) => {
 exports.updateProject = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, organization_id } = req.body;
-        const [updated] = await Projects.update({ name, description, organization_id }, {
+        const { name, description } = req.body;
+        const [updated] = await Projects.update({ name, description }, {
             where: { id }
         });
         if (updated) {

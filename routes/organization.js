@@ -3,7 +3,7 @@ const router = express.Router();
 const organizationController = require('../controllers/Organization');
 
 // Create a new organization
-router.post('/', organizationController.createOrganization);
+router.post('/create', organizationController.createOrganization);
 
 // Get an organization by ID
 router.get('/:id', organizationController.getOrganizationById);
@@ -12,9 +12,9 @@ router.get('/:id', organizationController.getOrganizationById);
 router.put('/:id', organizationController.updateOrganization);
 
 // Delete an organization by ID
-router.delete('/:id', organizationController.deleteOrganization);
+router.delete('/delete/:id', organizationController.deleteOrganization);
 
 // Get all organizations
-router.get('/', organizationController.getAllOrganizations);
+router.get('/list', organizationController.getAllOrganizations);
 
 module.exports = router;

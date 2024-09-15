@@ -24,6 +24,7 @@ const typesRouter = require('./routes/types');
 const ticketCommentsRouter = require('./routes/ticketcomments'); 
 const ticketsRouter = require('./routes/tickets'); 
 const ticketHistoryRouter = require('./routes/tickethistory')
+const { checkToken } = require('./controllers/Account');
 const app = express();
 const port = 3001
 // Sync models with the database
@@ -41,25 +42,23 @@ app.use(session({
   }));
   
   // Add middleware to parse JSON bodies
-  app.use(express.json());
+app.use(express.json());
   
+const logRequest = (req, res, next) => {
+    console.log(`Received request: ${req.method} ${req.url}`);
+    next();
+};
+
   // Mount the route handlers
-  app.use('/', router);
-  app.use('/user', (req, res, next) => {
-    console.log(`Received request: ${req.method} ${req.url}`);
-    next();
-}, userRouter);
-  app.use('/account', (req, res, next) => {
-    console.log(`Received request: ${req.method} ${req.url}`);
-    console.log('Request Body:', req.body);
-    next();
-}, authRouter);
-  app.use('/project', projectsRouter, statusRouter, typesRouter);
-  app.use('/organization', organizationRouter);
-  app.use('/ticket', ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
+app.use('/', router);
+app.use('/user', logRequest, userRouter);
+app.use('/account',logRequest, authRouter);
+app.use('/project', logRequest, checkToken, projectsRouter, statusRouter, typesRouter);
+app.use('/organization', logRequest, checkToken, organizationRouter);
+app.use('/ticket', logRequest, checkToken, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 
   
-
+ 
 // Error handling middleware
 app.use((req, res, next) => {
     res.status(404).send('Not Found');

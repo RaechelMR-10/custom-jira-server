@@ -27,21 +27,21 @@ const routes = {
     },
     project: {
         create: {
-            path: '/projects/signup',
+            path: '/project/create',
             type: 'POST',
             params: [],
-            body: []
+            body: [name, description, organization]
         },
         update: {
-            path: '/user/signup',
+            path: '/project/update',
             type: 'PUT',
-            params: [],
-            body: []
+            params: [id],
+            body: [name, description]
         },
         delete: {
-            path: '/user/signup',
+            path: '/project/delete',
             type: 'POST',
-            params: [],
+            params: [id],
             body: []
         }
     },

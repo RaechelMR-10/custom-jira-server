@@ -4,7 +4,6 @@ const Tickets = require('../models/Tickets');
 exports.createTicket = async (req, res) => {
     try {
         const { title, description, status_id, resolution, type_id, assignee_user_id } = req.body;
-        const reporter_user_id = req.user.id; // Automatically use the current user as the reporter
         const newTicket = await Tickets.create({ title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id });
         res.status(201).json(newTicket);
     } catch (error) {

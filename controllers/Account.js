@@ -8,16 +8,6 @@ const signup = async (req, res) => {
     try {
         const { first_name, last_name, email, username, password, organization_id, color } = req.body;
 
-        // console.log('Received data:', {
-        //     first_name,
-        //     last_name,
-        //     email,
-        //     username,
-        //     password,
-        //     organization_id,
-        //     color
-        // });
-
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await Users.create({
@@ -59,12 +49,10 @@ const auth = async (req, res) => {
         
         // Generate JWT token
         const token = jwt.sign({ id: user.id, guid: user.guid }, JWT_SECRET, { expiresIn: '1h' });
+
         // Exclude password from user data
         const userJson = user.toJSON ? user.toJSON() : user;
         const { password: _, ...userData } = userJson;
-
-        // Log the userData to ensure it does not contain the password
-        console.log('User data without password:', userData);
 
         // Send success response
         res.status(200).json({ message: 'Login successful', token, user: userData });
@@ -73,5 +61,42 @@ const auth = async (req, res) => {
     }
 };
 
+const checkToken = (req, res, next) => {
+    console.log('Checking token...');
 
-module.exports = { signup, auth };
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    console.log('Authorization Header:', authHeader);
+    console.log('Extracted Token:', token);
+
+    if (!token) {
+        console.log('No token provided');
+        return res.status(401).json({ error: 'No token provided' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            console.log('Token verification error:', err.message);
+            return res.status(403).json({ error: 'Token is invalid or expired' });
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        const remainingTime = decoded.exp - now;
+
+        if (remainingTime <= 0) {
+            console.log('Token has expired');
+            return res.status(403).json({ error: 'Token has expired' });
+        }
+
+        console.log('Token is valid. User:', decoded);
+        req.user = decoded;
+        req.tokenRemainingTime = remainingTime;
+
+        next();
+    });
+};
+
+
+
+module.exports = { signup, auth, checkToken };
