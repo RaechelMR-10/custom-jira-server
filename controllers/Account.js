@@ -41,8 +41,6 @@ const signup = async (req, res) => {
 const auth = async (req, res) => {
     try {
         const { username, password } = req.body;
-        
-        console.log('Login attempt with username:', username);
 
         // Find the user by username
         const user = await Users.findOne({ where: { username } });
@@ -51,9 +49,6 @@ const auth = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Log user data for debugging
-        console.log('User retrieved from database:', user);
-
         // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
         console.log('Password comparison result:', isMatch);
@@ -61,14 +56,19 @@ const auth = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
-
+        
         // Generate JWT token
         const token = jwt.sign({ id: user.id, guid: user.guid }, JWT_SECRET, { expiresIn: '1h' });
+        // Exclude password from user data
+        const userJson = user.toJSON ? user.toJSON() : user;
+        const { password: _, ...userData } = userJson;
+
+        // Log the userData to ensure it does not contain the password
+        console.log('User data without password:', userData);
 
         // Send success response
-        res.status(200).json({ message: 'Login successful', token });
+        res.status(200).json({ message: 'Login successful', token, user: userData });
     } catch (error) {
-        console.error('Error during authentication:', error);
         res.status(500).json({ error: 'Error logging in', details: error.message });
     }
 };
