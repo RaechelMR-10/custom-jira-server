@@ -1,16 +1,16 @@
 const routes = {
     user: {
         auth: {
-            path: '/auth/login',
+            path: '/account/auth',
             type: 'POST',
             params: [],
-            body: [username , password]
+            body: ['username' , 'password']
         },
         create: {
-            path: '/auth/signup',
+            path: '/account/signup',
             type: 'POST',
             params: [],
-            body: [ first_name, last_name, email, username, password, color, organization_id]
+            body: [ 'first_name', 'last_name', 'email', 'username', 'password', 'color', 'organization_id']
         },
         update: {
             path: '/user/update',
@@ -21,7 +21,7 @@ const routes = {
         delete: {
             path: '/user/delete',
             type: 'DELETE',
-            params: [id],
+            params: ['id'],
             body: []
         }
     },
@@ -30,51 +30,51 @@ const routes = {
             path: '/project/create',
             type: 'POST',
             params: [],
-            body: [name, description, organization]
+            body: ['name', 'description', 'organization']
         },
         update: {
             path: '/project/update',
             type: 'PUT',
-            params: [id],
-            body: [name, description]
+            params: ['id'],
+            body: ['name', 'description']
         },
         delete: {
             path: '/project/delete',
-            type: 'POST',
-            params: [id],
+            type: 'DELETE',
+            params: ['id'],
             body: []
         }
     },
     ticket: {
         create: {
-            path: '/user/signup',
+            path: '/ticket/create',
             type: 'POST',
             params: [],
-            body: []
+            body: [ 'title', 'description', 'status_id', 'resolution', 'type_id', 'assignee_user_id']
         },
         update: {
-            path: '/user/signup',
-            type: 'POST',
-            params: [],
-            body: []
+            path: '/ticket/update',
+            type: 'PUT',
+            params: ['id'],
+            body: [ 'title', 'description', 'status_id' , 'resolution', 'type_id', 'assignee_user_id']
         },
         delete: {
-            path: '/user/signup',
+            path: '/ticket/delete',
             type: 'POST',
-            params: [],
+            params: ['id'],
             body: []
         }
     },
     config: {
         type: {
             create: {
-                path: '/user/signup',
+                path: '/project/type/create',
                 type: 'POST',
                 params: [],
-                body: []
+                body: ['name', 'icon']
             },
             delete: {
-                path: '/user/signup',
+                path: '/project/type/delete',
                 type: 'POST',
                 params: [],
                 body: []
@@ -82,15 +82,15 @@ const routes = {
         },
         status: {
             create: {
-                path: '/user/signup',
+                path: '/project/status/create',
                 type: 'POST',
                 params: [],
-                body: []
+                body: ['name', 'color' ]
             },
             delete: {
-                path: '/user/signup',
+                path: '/project/status/delete',
                 type: 'POST',
-                params: [],
+                params: ['id'],
                 body: []
             }
         }

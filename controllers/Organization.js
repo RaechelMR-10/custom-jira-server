@@ -4,7 +4,14 @@ const Organization = require('../models/Organization');
 exports.createOrganization = async (req, res) => {
     try {
         const { name, description } = req.body;
-        const newOrganization = await Organization.create({ name, description });
+        const image = req.file ? req.file.path : null;
+
+        const newOrganization = await Organization.create({
+            name,
+            description,
+            image // Include image path if available
+        });
+
         res.status(201).json(newOrganization);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the organization.' });
@@ -17,6 +24,10 @@ exports.getOrganizationById = async (req, res) => {
         const { id } = req.params;
         const organization = await Organization.findByPk(id);
         if (organization) {
+            // Construct the URL for the image if it exists
+            if (organization.image) {
+                organization.imageUrl = `${req.protocol}://${req.get('host')}/${organization.image}`;
+            }
             res.json(organization);
         } else {
             res.status(404).json({ error: 'Organization not found.' });
@@ -25,6 +36,7 @@ exports.getOrganizationById = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching the organization.' });
     }
 };
+
 
 // Update an organization by ID
 exports.updateOrganization = async (req, res) => {

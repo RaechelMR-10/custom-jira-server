@@ -3,7 +3,7 @@ const router = express.Router();
 const ticketsController = require('../controllers/Tickets');
 
 // Create a new ticket
-router.post('/create-ticket', ticketsController.createTicket);
+router.post('/create', ticketsController.createTicket);
 
 // Get a ticket by ID
 router.get('/fetch/:id', ticketsController.getTicketById);
@@ -16,6 +16,10 @@ router.delete('/delete/:id', ticketsController.deleteTicket);
 
 // Get all tickets
 router.get('/', ticketsController.getAllTickets);
+
+
+
+
 
 // Get all tickets by status ID
 router.get('/fetchAllByStatus/:status_id', ticketsController.getTicketsByStatusId);

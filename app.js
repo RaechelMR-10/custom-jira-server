@@ -15,6 +15,7 @@ const Projects = require('./models/Projects');
 const tediousConnection = require('./config/tediousconn'); 
 const router = express.Router();
 const cors = require('cors');
+const path = require('path'); 
 const userRouter = require('./routes/user')
 const authRouter = require('./routes/account')
 const projectsRouter = require('./routes/project');
@@ -49,12 +50,14 @@ const logRequest = (req, res, next) => {
     next();
 };
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
   // Mount the route handlers
 app.use('/', router);
 app.use('/user', logRequest, userRouter);
 app.use('/account',logRequest, authRouter);
 app.use('/project', logRequest, checkToken, projectsRouter, statusRouter, typesRouter);
-app.use('/organization', logRequest, checkToken, organizationRouter);
+app.use('/organization', logRequest, organizationRouter);
 app.use('/ticket', logRequest, checkToken, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 
   

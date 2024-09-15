@@ -19,6 +19,10 @@ const Organization = sequelize.define('Organization', {
     description: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     tableName: 'Organizations', 

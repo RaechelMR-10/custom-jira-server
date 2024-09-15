@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const upload = require('../middlewares/multer');
 const organizationController = require('../controllers/Organization');
 
 // Create a new organization
-router.post('/create', organizationController.createOrganization);
+router.post('/create', upload.single('image'), organizationController.createOrganization);
 
 // Get an organization by ID
 router.get('/:id', organizationController.getOrganizationById);
