@@ -26,7 +26,7 @@ const ticketHistoryRouter = require('./routes/tickethistory')
 const app = express();
 const port = 3001
 // Sync models with the database
-sequelize.sync({ alter: true }) 
+//sequelize.sync({ alter: true }) 
 
 app.use(session({
     secret: process.env.jwt_secret_token, 
@@ -44,15 +44,26 @@ app.use(session({
   
   // Mount the route handlers
   app.use('/', router);
-  app.use('/user', userRouter);
-  app.use('/account', authRouter);
+  app.use('/user', (req, res, next) => {
+    console.log(`Received request: ${req.method} ${req.url}`);
+    next();
+}, userRouter);
+  app.use('/account', (req, res, next) => {
+    console.log(`Received request: ${req.method} ${req.url}`);
+    console.log('Request Body:', req.body);
+    next();
+}, authRouter);
   app.use('/project', projectsRouter, statusRouter, typesRouter);
   app.use('/organization', organizationRouter);
   app.use('/ticket', ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 
   
 
+// Error handling middleware
+app.use((req, res, next) => {
+    res.status(404).send('Not Found');
+});
   
-  app.listen(port, () => {
+app.listen(port, () => {
     console.log('Server running at http://localhost:${port}/');
-  });
+});

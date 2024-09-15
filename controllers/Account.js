@@ -38,27 +38,40 @@ const signup = async (req, res) => {
 };
 
 
-
 const auth = async (req, res) => {
     try {
         const { username, password } = req.body;
         
+        console.log('Login attempt with username:', username);
+
+        // Find the user by username
         const user = await Users.findOne({ where: { username } });
         if (!user) {
+            console.log('User not found');
             return res.status(401).json({ error: 'Invalid credentials' });
         }
-        
+
+        // Log user data for debugging
+        console.log('User retrieved from database:', user);
+
+        // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Password comparison result:', isMatch);
+
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
-        
+
+        // Generate JWT token
         const token = jwt.sign({ id: user.id, guid: user.guid }, JWT_SECRET, { expiresIn: '1h' });
-        
+
+        // Send success response
         res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
-        res.status(500).json({ error: 'Error logging in', details: error.stack });
+        console.error('Error during authentication:', error);
+        res.status(500).json({ error: 'Error logging in', details: error.message });
     }
 };
+
 
 module.exports = { signup, auth };

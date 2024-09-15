@@ -51,7 +51,7 @@ const getAllUsers = async (page, pageSize) => {
         });
 
         // Apply hideSensitiveData to each user
-        //const usersWithoutPassword = users.map(hideSensitiveData);
+        const usersWithoutPassword = users.map(hideSensitiveData);
 
         const totalUsers = await Users.count();
 
