@@ -1,8 +1,7 @@
 const Users = require('../models/User');
-const bcrypt = require('bcrypt');
 
 const updateUser = async (id, updateData) => {
-    const { first_name, last_name, email, username, password, color, organization_id } = updateData;
+    const { first_name, last_name, email, username, color, organization_id } = updateData;
 
     const updateFields = {
         first_name,
@@ -13,16 +12,9 @@ const updateUser = async (id, updateData) => {
         organization_id
     };
 
-    if (password) {
-        const saltRounds = 10; 
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        updateFields.password = hashedPassword;
-    }
-
-    // Perform the update operation
     const updatedUser = await UserModel.findByIdAndUpdate(id, {
         $set: updateFields
-    }, { new: true }); // Option to return the updated document
+    }, { new: true }); 
 
     if (!updatedUser) {
         throw new Error('User not found');
@@ -30,6 +22,7 @@ const updateUser = async (id, updateData) => {
 
     return updatedUser;
 };
+
 
 const getUser = async (id) => {
     try {
@@ -43,45 +36,47 @@ const getUser = async (id) => {
     }
 };
 
-
+// Function to get all users with pagination
 const getAllUsers = async (page, pageSize) => {
     try {
-        // Validate that page and pageSize are positive integers
         if (page <= 0 || pageSize <= 0) {
             throw new Error('Page and pageSize must be positive integers.');
         }
 
-        // Calculate the offset based on the page and pageSize
         const offset = (page - 1) * pageSize;
 
-        // Fetch users with pagination
         const users = await Users.findAll({
             limit: pageSize,
             offset: offset
         });
 
-        // Get total count of users
+        // Apply hideSensitiveData to each user
+        //const usersWithoutPassword = users.map(hideSensitiveData);
+
         const totalUsers = await Users.count();
 
-        // Map users to hide sensitive data
         return {
-            users: users.map(hideSensitiveData),
+            users: usersWithoutPassword,
             totalUsers,
             page,
             pageSize,
             totalPages: Math.ceil(totalUsers / pageSize)
         };
     } catch (error) {
-        throw new Error(`Error getting users: ${error.message}`);
+        throw new Error(`Error fetching users: ${error.message}`);
     }
 };
 
 
 
+
 const hideSensitiveData = (user) => {
-    const { password, ...userWithoutPassword } = user.toJSON();
+    // Ensure the user object is a plain JavaScript object
+    const userObj = user.toJSON ? user.toJSON() : user;
+    const { password, ...userWithoutPassword } = userObj;
     return userWithoutPassword;
 };
+
 
 
 module.exports = {

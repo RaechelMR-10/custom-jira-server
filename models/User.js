@@ -31,7 +31,12 @@ const User = sequelize.define('User', {
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        // Define a getter to hide the password field
+        get() {
+            // Hide the password field from the output
+            return undefined;
+        }
     },
     color:{
         type: DataTypes.STRING,
