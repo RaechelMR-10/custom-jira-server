@@ -3,7 +3,7 @@ const router = express.Router();
 const { updateUser, getUser, getAllUsers } = require('../controllers/User');
 
 // Update User
-router.put('/users/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
     try {
         const user = await updateUser(req.params.id, req.body);
         res.json(user);
@@ -13,7 +13,7 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // Get Single User
-router.get('/users/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const user = await getUser(req.params.id);
         res.json(user);
@@ -24,7 +24,7 @@ router.get('/users/:id', async (req, res) => {
 
 
 // Route handler
-app.get('/users', async (req, res) => {
+router.get('/list', async (req, res) => {
     try {
         // Extract page and pageSize from query parameters
         const page = parseInt(req.query.page, 10);

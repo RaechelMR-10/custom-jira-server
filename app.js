@@ -45,14 +45,10 @@ app.use(session({
   // Mount the route handlers
   app.use('/', router);
   app.use('/user', userRouter);
-  app.use('/auth', authRouter);
-  app.use('/projects', projectsRouter);
-  app.use('/status', statusRouter);
+  app.use('/account', authRouter);
+  app.use('/project', projectsRouter, statusRouter, typesRouter);
   app.use('/organization', organizationRouter);
-  app.use('/types', typesRouter);
-  app.use('/ticketcomments', ticketCommentsRouter);
-  app.use('/tickets', ticketsRouter);
-  app.use('/ticketchistory', ticketHistoryRouter);
+  app.use('/ticket', ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 
   
 

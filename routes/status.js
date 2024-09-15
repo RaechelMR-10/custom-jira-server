@@ -3,18 +3,12 @@ const router = express.Router();
 const statusController = require('../controllers/Status'); 
 
 // Create a new status
-router.post('/', statusController.createStatus);
-
-// Get a status by ID
-router.get('/:id', statusController.getStatusById);
-
-// Update a status by ID
-router.put('/:id', statusController.updateStatus);
+router.post('/status/create', statusController.createStatus);
 
 // Delete a status by ID
-router.delete('/:id', statusController.deleteStatus);
+router.delete('/status/delete/:id', statusController.deleteStatus);
 
 // Get all statuses
-router.get('/', statusController.getAllStatuses);
+router.get('/statuses', statusController.getAllStatuses);
 
 module.exports = router;

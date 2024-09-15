@@ -3,18 +3,12 @@ const router = express.Router();
 const typesController = require('../controllers/Types'); 
 
 // Create a new type
-router.post('/', typesController.createType);
-
-// Get a type by ID
-router.get('/:id', typesController.getTypeById);
-
-// Update a type by ID
-router.put('/:id', typesController.updateType);
+router.post('/type/create', typesController.createType);
 
 // Delete a type by ID
-router.delete('/:id', typesController.deleteType);
+router.delete('/type/delete/:id', typesController.deleteType);
 
 // Get all types
-router.get('/', typesController.getAllTypes);
+router.get('/types', typesController.getAllTypes);
 
 module.exports = router;

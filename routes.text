@@ -1,0 +1,100 @@
+const routes = {
+    user: {
+        auth: {
+            path: '/auth/login',
+            type: 'POST',
+            params: [],
+            body: [username , password]
+        },
+        create: {
+            path: '/auth/signup',
+            type: 'POST',
+            params: [],
+            body: [ first_name, last_name, email, username, password, color, organization_id]
+        },
+        update: {
+            path: '/user/update',
+            type: 'PUT',
+            params: [id],
+            body: []
+        },
+        delete: {
+            path: '/user/delete',
+            type: 'DELETE',
+            params: [id],
+            body: []
+        }
+    },
+    project: {
+        create: {
+            path: '/projects/signup',
+            type: 'POST',
+            params: [],
+            body: []
+        },
+        update: {
+            path: '/user/signup',
+            type: 'PUT',
+            params: [],
+            body: []
+        },
+        delete: {
+            path: '/user/signup',
+            type: 'POST',
+            params: [],
+            body: []
+        }
+    },
+    ticket: {
+        create: {
+            path: '/user/signup',
+            type: 'POST',
+            params: [],
+            body: []
+        },
+        update: {
+            path: '/user/signup',
+            type: 'POST',
+            params: [],
+            body: []
+        },
+        delete: {
+            path: '/user/signup',
+            type: 'POST',
+            params: [],
+            body: []
+        }
+    },
+    config: {
+        type: {
+            create: {
+                path: '/user/signup',
+                type: 'POST',
+                params: [],
+                body: []
+            },
+            delete: {
+                path: '/user/signup',
+                type: 'POST',
+                params: [],
+                body: []
+            }
+        },
+        status: {
+            create: {
+                path: '/user/signup',
+                type: 'POST',
+                params: [],
+                body: []
+            },
+            delete: {
+                path: '/user/signup',
+                type: 'POST',
+                params: [],
+                body: []
+            }
+        }
+    }
+}
+
+module.exports = routes;

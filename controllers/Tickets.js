@@ -3,13 +3,15 @@ const Tickets = require('../models/Tickets');
 // Create a new ticket
 exports.createTicket = async (req, res) => {
     try {
-        const { title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id } = req.body;
+        const { title, description, status_id, resolution, type_id, assignee_user_id } = req.body;
+        const reporter_user_id = req.user.id; // Automatically use the current user as the reporter
         const newTicket = await Tickets.create({ title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id });
         res.status(201).json(newTicket);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the ticket.' });
     }
 };
+
 
 // Get a ticket by ID
 exports.getTicketById = async (req, res) => {

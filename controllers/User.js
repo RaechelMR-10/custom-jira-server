@@ -1,16 +1,34 @@
 const Users = require('../models/User');
+const bcrypt = require('bcrypt');
 
 const updateUser = async (id, updateData) => {
-    try {
-        const user = await Users.findByPk(id);
-        if (!user) {
-            throw new Error('User not found');
-        }
-        await user.update(updateData);
-        return user;
-    } catch (error) {
-        throw new Error(`Error updating user: ${error.message}`);
+    const { first_name, last_name, email, username, password, color, organization_id } = updateData;
+
+    const updateFields = {
+        first_name,
+        last_name,
+        email,
+        username,
+        color,
+        organization_id
+    };
+
+    if (password) {
+        const saltRounds = 10; 
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        updateFields.password = hashedPassword;
     }
+
+    // Perform the update operation
+    const updatedUser = await UserModel.findByIdAndUpdate(id, {
+        $set: updateFields
+    }, { new: true }); // Option to return the updated document
+
+    if (!updatedUser) {
+        throw new Error('User not found');
+    }
+
+    return updatedUser;
 };
 
 const getUser = async (id) => {
