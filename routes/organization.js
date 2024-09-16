@@ -10,7 +10,7 @@ router.post('/create', upload.single('image'), organizationController.createOrga
 router.get('/:id', organizationController.getOrganizationById);
 
 // Update an organization by ID
-router.put('/:id', organizationController.updateOrganization);
+router.put('/update/:id', organizationController.updateOrganization);
 
 // Delete an organization by ID
 router.delete('/delete/:id', organizationController.deleteOrganization);
