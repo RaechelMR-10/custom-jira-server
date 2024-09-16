@@ -6,16 +6,16 @@ const ticketsController = require('../controllers/Tickets');
 router.post('/create', ticketsController.createTicket);
 
 // Get a ticket by ID
-router.get('/:id', ticketsController.getTicketById);
+router.get('/:guid', ticketsController.getTicketById);
 
 // Update a ticket by ID
-router.put('/update-ticket/:id', ticketsController.updateTicket);
+router.put('/update/:guid', ticketsController.updateTicket);
 
 // Delete a ticket by ID
 router.delete('/delete/:id', ticketsController.deleteTicket);
 
-// Get all tickets
-router.get('/', ticketsController.getAllTickets);
+router.get('/list/:project_guid', ticketsController.getTicketsByProjectGuid)
+
 
 
 

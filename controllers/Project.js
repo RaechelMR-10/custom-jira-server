@@ -1,6 +1,7 @@
 const ProjectMember = require('../models/ProjectMember')
 const  Projects = require('../models/Projects'); // Assuming the models are imported here
-
+const User = require('../models/User');
+const { project } = require('../routes');
 exports.createProject = async (req, res) => {
     try {
         const { name, description, organization_id, user_id } = req.body;
@@ -21,8 +22,6 @@ exports.createProject = async (req, res) => {
     }
 };
 
-
-
 exports.getProjectsByUserId = async (req, res) => {
     const { id } = req.params;
     try {
@@ -41,7 +40,23 @@ exports.getProjectsByUserId = async (req, res) => {
                 where: { id: projectIds }
             });
 
-            res.json(projects);
+            // Prepare an array to hold the projects with their detailed members
+            let userProjects = await Promise.all(projects.map(async (p) => {
+                // Fetch members for each project
+                const projectMembers = await ProjectMember.findAll({ 
+                    where: { project_id: p.id }
+                });
+
+                // Fetch detailed user information for each member
+                const memberDetails = await Promise.all(projectMembers.map(async (member) => {
+                    const user = await User.findByPk(member.user_id); // Fetch user by user_id
+                    return user ? user.toJSON() : null; // Convert to JSON and handle null case
+                }));
+
+                return { ...p.toJSON(), members: memberDetails.filter(Boolean) }; // Ensure to filter out null users
+            }));
+
+            res.json(userProjects);
         } else {
             // No projects found for the given user ID
             res.status(404).json({ error: 'No projects found for this user.' });
@@ -52,6 +67,7 @@ exports.getProjectsByUserId = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching the projects.' });
     }
 };
+
 
 // Get a project by ID
 exports.getProjectById = async (req, res) => {
@@ -138,6 +154,42 @@ exports.getProjectsByOrganizationId = async (req, res) => {
     }
 };
 
+exports.getUsersByProjectId = async (req, res) => {
+    try {
+        const projectId = req.params.id; // Use 'id' from the route
+
+        if (!projectId) {
+            return res.status(400).json({ error: 'Project ID is required' });
+        }
+
+        // Find all project members with the given project ID
+        const projectMembers = await ProjectMember.findAll({
+            where: { project_id: projectId },
+            attributes: ['user_id'] // Only select user_id to minimize data fetched
+        });
+
+        if (projectMembers.length === 0) {
+            return res.status(404).json({ message: 'No users found for this project' });
+        }
+
+        // Extract user IDs from project members
+        const userIds = projectMembers.map(pm => pm.user_id);
+
+        // Find users with the extracted user IDs
+        const users = await User.findAll({
+            where: { id: userIds },
+            attributes: [
+                'id', 'guid', 'first_name', 'middle_name', 'last_name', 
+                'email', 'username', 'color', 'organization_id', 'role'
+            ]
+        });
+
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 // Delete a project by ID
 exports.deleteProject = async (req, res) => {
     try {

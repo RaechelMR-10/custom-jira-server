@@ -1,50 +1,95 @@
-const Tickets = require('../models/Tickets'); 
+const {Tickets, Users} = require('../models');
+// Create a new ticket
 
 // Create a new ticket
 exports.createTicket = async (req, res) => {
     try {
-        const { title, description, status_id, resolution, type_id, assignee_user_id } = req.body;
-        const newTicket = await Tickets.create({ title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id });
-        res.status(201).json(newTicket);
+        const { title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id, project_guid } = req.body;
+
+        // Create ticket
+        const newTicket = await Tickets.create({
+            title,
+            description,
+            status_id,
+            resolution,
+            type_id,
+            reporter_user_id,
+            assignee_user_id,
+            project_guid
+        });
+
+        res.status(201).json({
+            message: 'Ticket created successfully',
+            data: newTicket
+        });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while creating the ticket.' });
+        console.error('Error creating ticket:', error);
+        res.status(500).json({
+            message: 'An error occurred while creating the ticket',
+            error: error.message
+        });
     }
 };
 
-
-// Get a ticket by ID
+// Get a ticket by GUID
 exports.getTicketById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const ticket = await Tickets.findByPk(id);
+        const { guid } = req.params;
+        
+        // Fetch the ticket by GUID
+        const ticket = await Tickets.findOne({ where: { guid } });
+        
         if (ticket) {
-            res.json(ticket);
+            const ticketJson = ticket.toJSON(); // Convert ticket to plain JSON
+            
+            // Fetch user details using reporter_user_id if it exists
+            if (ticketJson.reporter_user_id) {
+                const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
+                    attributes: ['id', 'first_name', 'email'] // Specify fields to include
+                });
+                ticketJson.reporter = reporter ? reporter.toJSON() : null; // Add reporter details
+            } else {
+                ticketJson.reporter = null; // No reporter if reporter_user_id is null
+            }
+
+            res.json(ticketJson); // Return the ticket with reporter details
         } else {
             res.status(404).json({ error: 'Ticket not found.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching the ticket.' });
+        res.status(500).json({ error: 'An error occurred while fetching the ticket.', detail: error.message });
     }
 };
 
-// Update a ticket by ID
+// Update a ticket by GUID
 exports.updateTicket = async (req, res) => {
+    const { guid } = req.params;
+    const { title, description, status_id, resolution, type_id, assignee_user_id } = req.body;
+
     try {
-        const { id } = req.params;
-        const { title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id } = req.body;
-        const [updated] = await Tickets.update({ title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id }, {
-            where: { id }
-        });
+        // Update the ticket
+        const [updated] = await Tickets.update(
+            { title, description, status_id, resolution, type_id, assignee_user_id },
+            { where: { guid } }
+        );
+
         if (updated) {
-            const updatedTicket = await Tickets.findByPk(id);
-            res.json(updatedTicket);
+            // Fetch the updated ticket
+            const updatedTicket = await Tickets.findOne({ where: { guid } });
+
+            if (updatedTicket) {
+                res.json(updatedTicket);
+            } else {
+                res.status(404).json({ error: 'Ticket not found.' });
+            }
         } else {
             res.status(404).json({ error: 'Ticket not found.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while updating the ticket.' });
+        res.status(500).json({ error: 'An error occurred while updating the ticket.', detail: error.message });
     }
 };
+
 
 // Delete a ticket by ID
 exports.deleteTicket = async (req, res) => {
@@ -63,42 +108,6 @@ exports.deleteTicket = async (req, res) => {
     }
 };
 
-// Get all tickets with pagination
-exports.getAllTickets = async (req, res) => {
-    try {
-        // Extract page and pageSize from query parameters
-        const page = parseInt(req.query.page, 10) || 1;  // Default to page 1 if not provided
-        const pageSize = parseInt(req.query.pageSize, 10) || 10;  // Default to pageSize 10 if not provided
-
-        // Validate that page and pageSize are positive integers
-        if (page <= 0 || pageSize <= 0) {
-            return res.status(400).json({ error: 'Page and pageSize must be positive integers.' });
-        }
-
-        // Calculate offset
-        const offset = (page - 1) * pageSize;
-
-        // Fetch tickets with pagination
-        const tickets = await Tickets.findAll({
-            limit: pageSize,
-            offset: offset
-        });
-
-        // Get total count of tickets
-        const totalTickets = await Tickets.count();
-
-        // Respond with paginated results
-        res.json({
-            tickets,
-            totalTickets,
-            page,
-            pageSize,
-            totalPages: Math.ceil(totalTickets / pageSize)
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching the tickets.' });
-    }
-};
 
 
 // Get all tickets by status ID
@@ -151,4 +160,41 @@ exports.getTicketsByAssigneeUserId = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching tickets by assignee user ID.' });
     }
+};
+
+exports.getTicketsByProjectGuid = async (req, res) => {
+    const { project_guid } = req.params;
+
+    try {
+        const tickets = await Tickets.findAll({
+            where: { project_guid }
+        });
+
+        if (tickets.length > 0) {
+            const ticketsWithReporters = await Promise.all(tickets.map(async (ticket) => {
+                const ticketJson = ticket.toJSON(); 
+
+                if (ticketJson.reporter_user_id) {
+                    const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
+                        attributes: ['id', 'first_name','last_name', 'email', 'organization_id']
+                    });
+                    ticketJson.reporter = reporter ? reporter.toJSON() : null; 
+                } else {
+                    ticketJson.reporter = null; 
+                }
+
+                return ticketJson; 
+            }));
+
+            res.json(ticketsWithReporters);
+        } else {
+            // No tickets found for the given project_guid
+            res.status(404).json({ error: 'No tickets found for this project.' });
+        }
+    } catch (error) {
+        // Handle any unexpected errors
+        console.error('Error fetching tickets:', error); // Log error details for debugging
+        res.status(500).json({ error: 'An error occurred while fetching the tickets.' });
+    }
+
 };

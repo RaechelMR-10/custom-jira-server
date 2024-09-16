@@ -13,15 +13,15 @@ const Tickets = sequelize.define('Tickets',{
     },
     title:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     description:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     status_id:{
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references:{
             model: 'Status',
             key: 'id'
@@ -29,11 +29,11 @@ const Tickets = sequelize.define('Tickets',{
     },
     resolution:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     type_id:{
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'Types',
             key: 'id'
@@ -41,7 +41,7 @@ const Tickets = sequelize.define('Tickets',{
     },
     reporter_user_id:{
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references:{
             model: 'Users',
             key: 'id'
@@ -49,12 +49,16 @@ const Tickets = sequelize.define('Tickets',{
     },
     assignee_user_id:{
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references:{
             model: 'Users',
             key: 'id'
         }
-    }
+    },
+    project_guid:{
+        type: DataTypes.UUID,
+        allowNull: true
+    },
 },{
     tableName: 'Tickets'
 })

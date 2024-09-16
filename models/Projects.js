@@ -1,6 +1,7 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../config/database');
-
+const Users= require('./User')
+const ProjectMember = require('./ProjectMember')
 const Projects = sequelize.define('Projects',{
     id:{
         type: DataTypes.INTEGER,
@@ -26,9 +27,14 @@ const Projects = sequelize.define('Projects',{
             model:'Organizations',
             key: 'id'
         }
+    }, 
+    prefix:{
+        type:DataTypes.STRING,
+        allowNull: true
     }
 },{
         tableName: 'Projects'
     
 })
+
 module.exports = Projects;

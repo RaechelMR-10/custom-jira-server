@@ -14,6 +14,9 @@ router.put('/update/:id', projectsController.updateProject);
 // Get all projects
 router.get('/list/:id', projectsController.getProjectsByUserId);
 
+
+router.get('/user_list/:id', projectsController.getUsersByProjectId);
+
 // Get all projects by organization ID
 router.get('/:organization_id', projectsController.getProjectsByOrganizationId);
 
