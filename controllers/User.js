@@ -1,11 +1,12 @@
 const Users = require('../models/User');
-
+const Organization = require('../models/Organization');
 const updateUser = async (id, updateData) => {
-    const { first_name, last_name, email, username, color, organization_id } = updateData;
+    const { first_name,middle_name, last_name, email, username, color, organization_id } = updateData;
 
     const updateFields = {
         first_name,
         last_name,
+        middle_name,
         email,
         username,
         color,
@@ -67,11 +68,60 @@ const getAllUsers = async (page, pageSize) => {
     }
 };
 
+// Function to get all users with pagination
+const getAllUsersByOrganizationID = async (organization_id, page, pageSize) => {
+    try {
+        if (page <= 0 || pageSize <= 0) {
+            throw new Error('Page and pageSize must be positive integers.');
+        }
+
+        const offset = (page - 1) * pageSize;
+
+        // Fetch users with pagination
+        const users = await Users.findAll({
+            where: { organization_id: organization_id },
+            limit: pageSize,
+            offset: offset
+        });
+
+        // Apply hideSensitiveData to each user
+        const usersWithoutPassword = users.map(hideSensitiveData);
+
+        // Count the total number of users for the given organization_id
+        const totalUsers = await Users.count({
+            where: { organization_id: organization_id }
+        });
+
+        return {
+            users: usersWithoutPassword,
+            totalUsers,
+            page,
+            pageSize,
+            totalPages: Math.ceil(totalUsers / pageSize)
+        };
+    } catch (error) {
+        throw new Error(`Error fetching users: ${error.message}`);
+    }
+};
 
 
+const deleteUser = async( req, res) =>{
+    try{
+        const { id } = req.params;
+        const deleted = await Users.destroy({
+            where: { id }
+        });
+        if (deleted) {
+            res.status(204).send(); 
+        } else {
+            res.status(404).json({ error: 'User not found.' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while deleting the user.' });
+    }
+}
 
 const hideSensitiveData = (user) => {
-    // Ensure the user object is a plain JavaScript object
     const userObj = user.toJSON ? user.toJSON() : user;
     const { password, ...userWithoutPassword } = userObj;
     return userWithoutPassword;
@@ -82,5 +132,7 @@ const hideSensitiveData = (user) => {
 module.exports = {
     updateUser,
     getUser,
-    getAllUsers
+    getAllUsers,
+    deleteUser,
+    getAllUsersByOrganizationID
 };

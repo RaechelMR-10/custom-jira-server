@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { updateUser, getUser, getAllUsers } = require('../controllers/User');
+const { updateUser, getUser, getAllUsers, deleteUser, getAllUsersByOrganizationID } = require('../controllers/User');
 
 // Update User
 router.put('/update/:id', async (req, res) => {
@@ -22,6 +22,25 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    try {
+        const organizationId = parseInt(req.query.organization, 10);
+        const page = parseInt(req.query.page, 10);
+        const pageSize = parseInt(req.query.pageSize, 10);
+
+        if (isNaN(organizationId) || isNaN(page) || isNaN(pageSize)) {
+            return res.status(400).json({ error: 'Invalid query parameters.' });
+        }
+
+        const result = await getAllUsersByOrganizationID(organizationId, page, pageSize);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: `Error fetching users: ${error.message}` });
+    }
+});
+
+
+router.delete('/delete/:id', deleteUser);
 router.get('/', async (req, res) => {
     try {
         // Extract and log page and pageSize from query parameters
@@ -47,6 +66,5 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
 
 module.exports = router;

@@ -23,10 +23,36 @@ const Organization = sequelize.define('Organization', {
     image: {
         type: DataTypes.STRING,
         allowNull: true
-    }
+    },
+    subscription_type: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    subscription_StartDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    subscription_EndDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: DataTypes.NOW  
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
 }, {
-    tableName: 'Organizations', 
-    timestamps: false 
+    tableName: 'Organizations',
+    timestamps: false
 });
 
 module.exports = Organization;

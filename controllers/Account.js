@@ -1,28 +1,49 @@
 const Users = require('../models/User');
+const Organization = require('../models/Organization');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { organization } = require('../routes');
 
 const JWT_SECRET= process.env.jwt_secret_token;
 
 const signup = async (req, res) => {
     try {
-        const { first_name, last_name, email, username, password, organization_id, color } = req.body;
+        const { first_name, middle_name, last_name, email, username, password, organization_id, color } = req.body;
 
+        let orgId = organization_id;
+
+        // Create a new organization only if organization_id is not provided
+        if (!organization_id) {
+            const newOrganization = await Organization.create({
+                name: 'Temporary Name',
+                description: 'Temporary Description',
+                subscription_type: null,
+                subscription_StartDate: null,
+                subscription_EndDate: null,
+                isActive: false,
+                image: null
+            });
+            orgId = newOrganization.id;
+        }
+
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Create the user with the organization ID
         const user = await Users.create({
             first_name,
             last_name,
+            middle_name,
             email,
             username,
             password: hashedPassword,
-            organization_id,
+            organization_id: orgId, // Use the existing or newly created organization ID
             color: color || '#878787'  // Default to '#878787' if no color is provided
         });
-        
+
         res.status(201).json({ message: 'User created successfully', user });
     } catch (error) {
-        console.error('Error creating user:', error); 
+        console.error('Error creating user:', error);
         res.status(500).json({ error: 'Error creating user', details: error.message });
     }
 };
@@ -52,9 +73,22 @@ const auth = async (req, res) => {
 
         // Exclude password from user data
         const userJson = user.toJSON ? user.toJSON() : user;
-        const { password: _, ...userData } = userJson;
+        const { password: _, organization_id, ...userData } = userJson;
 
-        // Send success response
+        let organization = null;
+        if (organization_id) {
+            organization = await Organization.findByPk(organization_id);
+            if (organization) {
+                organization = organization.toJSON(); // Convert to JSON if needed
+            }
+        }
+
+        // Merge organization data into user data if organization exists
+        if (organization) {
+            userData.organization = organization;
+        }
+
+        // Send success response with user and possibly organization data
         res.status(200).json({ message: 'Login successful', token, user: userData });
     } catch (error) {
         res.status(500).json({ error: 'Error logging in', details: error.message });

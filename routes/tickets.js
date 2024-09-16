@@ -6,7 +6,7 @@ const ticketsController = require('../controllers/Tickets');
 router.post('/create', ticketsController.createTicket);
 
 // Get a ticket by ID
-router.get('/fetch/:id', ticketsController.getTicketById);
+router.get('/:id', ticketsController.getTicketById);
 
 // Update a ticket by ID
 router.put('/update-ticket/:id', ticketsController.updateTicket);

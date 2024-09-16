@@ -10,17 +10,23 @@ const routes = {
             path: '/account/signup',
             type: 'POST',
             params: [],
-            body: [ 'first_name', 'last_name', 'email', 'username', 'password', 'color', 'organization_id']
+            body: [ 'first_name','middle_name', 'last_name', 'email', 'username', 'password', 'color', 'organization_id']
         },
         update: {
             path: '/user/update',
             type: 'PUT',
-            params: [id],
+            params: ['id'],
             body: []
         },
         delete: {
             path: '/user/delete',
             type: 'DELETE',
+            params: ['id'],
+            body: []
+        },
+        fetch: {
+            path: '/user',
+            type: 'GET',
             params: ['id'],
             body: []
         }
@@ -43,6 +49,12 @@ const routes = {
             type: 'DELETE',
             params: ['id'],
             body: []
+        },
+        fetch: {
+            path: '/project',
+            type: 'GET',
+            params: ['id'],
+            body: []
         }
     },
     ticket: {
@@ -63,6 +75,12 @@ const routes = {
             type: 'POST',
             params: ['id'],
             body: []
+        },
+        fetch: {
+            path: '/ticket',
+            type: 'GET',
+            params: ['id'],
+            body: []
         }
     },
     config: {
@@ -76,6 +94,12 @@ const routes = {
             delete: {
                 path: '/project/type/delete',
                 type: 'POST',
+                params: [],
+                body: []
+            },
+            fetch: {
+                path: '/project/types',
+                type: 'GET',
                 params: [],
                 body: []
             }
@@ -92,9 +116,41 @@ const routes = {
                 type: 'POST',
                 params: ['id'],
                 body: []
+            },
+            fetch: {
+                path: '/project/statuses',
+                type: 'GET',
+                params: [],
+                body: []
             }
         }
-    }
+    },
+    organization: {
+        create: {
+            path: '/organization/create',
+            type: 'POST',
+            params: [],
+            body: ['name', 'description', 'subscription_type', 'subscription_StartDate', 'subscription_EndDate' , 'isActive']
+        },
+        update: {
+            path: '/organization/update',
+            type: 'PUT',
+            params: ['id'],
+            body: ['name', 'description', 'subscription_type', 'subscription_StartDate', 'subscription_EndDate' , 'isActive']
+        },
+        delete: {
+            path: '/organization/delete',
+            type: 'DELETE',
+            params: ['id'],
+            body: []
+        },
+        fetch: {
+            path: '/organization',
+            type: 'GET',
+            params: ['id'],
+            body: []
+        }
+    },
 }
 
 module.exports = routes;
