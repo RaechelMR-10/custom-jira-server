@@ -4,10 +4,10 @@ const User = require('../models/User');
 const { project } = require('../routes');
 exports.createProject = async (req, res) => {
     try {
-        const { name, description, organization_id, user_id } = req.body;
+        const { name, description, organization_id, user_id , prefix} = req.body;
 
         // Create the new project
-        const newProject = await Projects.create({ name, description, organization_id });
+        const newProject = await Projects.create({ name, description, organization_id ,prefix});
         
         // Create a new ProjectMember with the 'manager' role
         await ProjectMember.create({

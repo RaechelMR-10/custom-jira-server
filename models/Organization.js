@@ -14,11 +14,11 @@ const Organization = sequelize.define('Organization', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     description: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     image: {
         type: DataTypes.STRING,

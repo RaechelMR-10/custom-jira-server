@@ -26,7 +26,7 @@ const ProjectMember = sequelize.define('ProjectMember',{
     },
     role:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     }
 },{
     tableName: 'ProjectMembers'

@@ -45,7 +45,7 @@ exports.getTicketById = async (req, res) => {
             // Fetch user details using reporter_user_id if it exists
             if (ticketJson.reporter_user_id) {
                 const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
-                    attributes: ['id', 'first_name', 'email'] // Specify fields to include
+                    attributes: ['id', 'first_name','last_name' ,'email','color'] // Specify fields to include
                 });
                 ticketJson.reporter = reporter ? reporter.toJSON() : null; // Add reporter details
             } else {
@@ -61,34 +61,35 @@ exports.getTicketById = async (req, res) => {
     }
 };
 
-// Update a ticket by GUID
 exports.updateTicket = async (req, res) => {
-    const { guid } = req.params;
-    const { title, description, status_id, resolution, type_id, assignee_user_id } = req.body;
-
     try {
-        // Update the ticket
-        const [updated] = await Tickets.update(
-            { title, description, status_id, resolution, type_id, assignee_user_id },
-            { where: { guid } }
-        );
+        const { guid } = req.params;
+        const { title, description, status_id, resolution, type_id, assignee_user_id } = req.body;
 
-        if (updated) {
-            // Fetch the updated ticket
-            const updatedTicket = await Tickets.findOne({ where: { guid } });
+        // Find the ticket by GUID
+        const ticket = await Tickets.findOne({ where: { guid } });
 
-            if (updatedTicket) {
-                res.json(updatedTicket);
-            } else {
-                res.status(404).json({ error: 'Ticket not found.' });
-            }
-        } else {
-            res.status(404).json({ error: 'Ticket not found.' });
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
         }
+
+        // Update the ticket
+        await ticket.update({
+            title,
+            description,
+            status_id,
+            resolution,
+            type_id,
+            assignee_user_id
+        });
+
+        return res.status(200).json({ message: 'Ticket updated successfully', ticket });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while updating the ticket.', detail: error.message });
+        return res.status(500).json({ message: 'Error updating ticket', error });
     }
 };
+
+
 
 
 // Delete a ticket by ID
