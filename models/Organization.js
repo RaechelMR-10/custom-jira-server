@@ -38,8 +38,7 @@ const Organization = sequelize.define('Organization', {
     },
     isActive: {
         type: DataTypes.BOOLEAN,
-        allowNull: true,
-        defaultValue: false
+        allowNull: true
     },
     createdAt: {
         type: DataTypes.DATE,

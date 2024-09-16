@@ -12,7 +12,7 @@ router.get('/:id', projectsController.getProjectById);
 router.put('/update/:id', projectsController.updateProject);
 
 // Get all projects
-//router.get('/', projectsController.getAllProjects);
+router.get('/list/:id', projectsController.getProjectsByUserId);
 
 // Get all projects by organization ID
 router.get('/:organization_id', projectsController.getProjectsByOrganizationId);

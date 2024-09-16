@@ -38,37 +38,6 @@ const getUser = async (id) => {
 };
 
 // Function to get all users with pagination
-const getAllUsers = async (page, pageSize) => {
-    try {
-        if (page <= 0 || pageSize <= 0) {
-            throw new Error('Page and pageSize must be positive integers.');
-        }
-
-        const offset = (page - 1) * pageSize;
-
-        const users = await Users.findAll({
-            limit: pageSize,
-            offset: offset
-        });
-
-        // Apply hideSensitiveData to each user
-        const usersWithoutPassword = users.map(hideSensitiveData);
-
-        const totalUsers = await Users.count();
-
-        return {
-            users: usersWithoutPassword,
-            totalUsers,
-            page,
-            pageSize,
-            totalPages: Math.ceil(totalUsers / pageSize)
-        };
-    } catch (error) {
-        throw new Error(`Error fetching users: ${error.message}`);
-    }
-};
-
-// Function to get all users with pagination
 const getAllUsersByOrganizationID = async (organization_id, page, pageSize) => {
     try {
         if (page <= 0 || pageSize <= 0) {
@@ -132,7 +101,6 @@ const hideSensitiveData = (user) => {
 module.exports = {
     updateUser,
     getUser,
-    getAllUsers,
     deleteUser,
     getAllUsersByOrganizationID
 };

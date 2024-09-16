@@ -8,10 +8,10 @@ const JWT_SECRET= process.env.jwt_secret_token;
 
 const signup = async (req, res) => {
     try {
-        const { first_name, middle_name, last_name, email, username, password, organization_id, color } = req.body;
+        const { first_name, middle_name, last_name, email, username, password, organization_id, color} = req.body;
 
         let orgId = organization_id;
-
+        let roles = 'member';
         // Create a new organization only if organization_id is not provided
         if (!organization_id) {
             const newOrganization = await Organization.create({
@@ -24,6 +24,7 @@ const signup = async (req, res) => {
                 image: null
             });
             orgId = newOrganization.id;
+            roles = 'admin'
         }
 
         // Hash the password
@@ -37,6 +38,7 @@ const signup = async (req, res) => {
             email,
             username,
             password: hashedPassword,
+            roles,
             organization_id: orgId, // Use the existing or newly created organization ID
             color: color || '#878787'  // Default to '#878787' if no color is provided
         });

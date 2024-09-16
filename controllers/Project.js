@@ -1,13 +1,55 @@
-const Projects = require('../models/Projects');
+const ProjectMember = require('../models/ProjectMember')
+const  Projects = require('../models/Projects'); // Assuming the models are imported here
 
-//create
 exports.createProject = async (req, res) => {
     try {
-        const { name, description, organization_id } = req.body;
+        const { name, description, organization_id, user_id } = req.body;
+
+        // Create the new project
         const newProject = await Projects.create({ name, description, organization_id });
+        
+        // Create a new ProjectMember with the 'manager' role
+        await ProjectMember.create({
+            user_id: user_id,
+            project_id: newProject.id, 
+            role: 'manager' 
+        });
+
         res.status(201).json(newProject);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while creating the project.' });
+        res.status(500).json({ error: 'An error occurred while creating the project.', details: error.message });
+    }
+};
+
+
+
+exports.getProjectsByUserId = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Fetch all project IDs for the given user ID
+        const projectMembers = await ProjectMember.findAll({
+            where: { user_id: id },
+            attributes: ['project_id'] // Select only project_id
+        });
+
+        if (projectMembers.length > 0) {
+            // Extract project IDs
+            const projectIds = projectMembers.map(member => member.project_id);
+
+            // Fetch all projects with those IDs
+            const projects = await Projects.findAll({
+                where: { id: projectIds }
+            });
+
+            res.json(projects);
+        } else {
+            // No projects found for the given user ID
+            res.status(404).json({ error: 'No projects found for this user.' });
+        }
+    } catch (error) {
+        // Handle any unexpected errors
+        console.error(error); // Log error details for debugging
+        res.status(500).json({ error: 'An error occurred while fetching the projects.' });
     }
 };
 

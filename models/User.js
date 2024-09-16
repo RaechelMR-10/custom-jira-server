@@ -48,6 +48,10 @@ const User = sequelize.define('User', {
             model: 'Organizations', 
             key: 'id'
         }
+    }, 
+    role:{
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     tableName: 'Users',

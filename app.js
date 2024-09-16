@@ -11,6 +11,7 @@ const TicketHistory = require('./models/TicketHistory');
 const TicketComments = require('./models/TicketComments');
 const Types = require('./models/Types');
 const Projects = require('./models/Projects');
+const ProjectMember = require('./models/ProjectMember');
 
 const tediousConnection = require('./config/tediousconn'); 
 const router = express.Router();
@@ -56,9 +57,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/', router);
 app.use('/user', logRequest, userRouter);
 app.use('/account',logRequest, authRouter);
-app.use('/project', logRequest, checkToken, projectsRouter, statusRouter, typesRouter);
+app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter);
 app.use('/organization', logRequest, organizationRouter);
-app.use('/ticket', logRequest, checkToken, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
+app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 
   
  
