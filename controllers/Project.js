@@ -28,8 +28,8 @@ exports.createProject = async (req, res) => {
 
         // Create a type DEFAULT with the icon t1
         await Types.create({
-            name: 'DEFAULT',
-            icon: 't1',
+            name: 'DRAFT',
+            icon: 't5',
             project_guid: newProject.guid,
             isDefault: true
         });
