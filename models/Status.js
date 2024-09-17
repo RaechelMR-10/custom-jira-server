@@ -14,6 +14,10 @@ const Status = sequelize.define('Status', {
     color:{
         type: DataTypes.STRING,
         allowNull: true
+    },
+    project_guid:{
+        type: DataTypes.UUID,
+        allowNull: true
     }
 },{
     tableName: 'Status'

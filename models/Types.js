@@ -14,6 +14,10 @@ const Types = sequelize.define('Types', {
     icon:{
         type: DataTypes.STRING,
         allowNull: false
+    },
+    project_guid:{
+        type: DataTypes.UUID,
+        allowNull: true
     }
 },{
     tableName: 'Types'

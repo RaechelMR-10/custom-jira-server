@@ -6,7 +6,7 @@ const projectsController = require('../controllers/Project'); // Adjust the path
 router.post('/create', projectsController.createProject);
 
 // Get a project by ID
-router.get('/:id', projectsController.getProjectById);
+router.get('/:guid', projectsController.getProjectById);
 
 // Update a project by ID
 router.put('/update/:id', projectsController.updateProject);

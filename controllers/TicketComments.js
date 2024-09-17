@@ -14,8 +14,8 @@ exports.createTicketComment = async (req, res) => {
 // Get a comment by ID
 exports.getTicketCommentById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const comment = await TicketComments.findByPk(id);
+        const { guid } = req.params;
+        const comment = await TicketComments.findOne({where: { guid}});
         if (comment) {
             res.json(comment);
         } else {

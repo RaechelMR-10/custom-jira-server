@@ -3,19 +3,19 @@ const Types = require('../models/Types'); // Adjust the path as necessary
 // Create a new type
 exports.createType = async (req, res) => {
     try {
-        const { name, icon } = req.body;
-        const newType = await Types.create({ name, icon });
+        const { name, icon, project_guid } = req.body;
+        const newType = await Types.create({ name, icon, project_guid });
         res.status(201).json(newType);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while creating the type.' });
+        res.status(500).json({ error: 'An error occurred while creating the type.' , details: error.message });
     }
 };
 
 // Get a type by ID
 exports.getTypeById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const type = await Types.findByPk(id);
+        const { project_guid } = req.params;
+        const type = await Types.findAll({where: {project_guid}});
         if (type) {
             res.json(type);
         } else {

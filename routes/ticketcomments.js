@@ -6,7 +6,7 @@ const ticketCommentsController = require('../controllers/TicketComments');
 router.post('/comment/add', ticketCommentsController.createTicketComment);
 
 // Get a comment by ID
-router.get('/comment/:id', ticketCommentsController.getTicketCommentById);
+router.get('/comment/:guid', ticketCommentsController.getTicketCommentById);
 
 // Update a comment by ID
 router.put('/comment/update/:id', ticketCommentsController.updateTicketComment);

@@ -3,8 +3,8 @@ const Status = require('../models/Status');
 // Create a new status
 exports.createStatus = async (req, res) => {
     try {
-        const { name, color } = req.body;
-        const newStatus = await Status.create({ name, color });
+        const { name, color, project_guid } = req.body;
+        const newStatus = await Status.create({ name, color, project_guid });
         res.status(201).json(newStatus);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the status.' });
@@ -14,8 +14,8 @@ exports.createStatus = async (req, res) => {
 // Get a status by ID
 exports.getStatusById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const status = await Status.findByPk(id);
+        const { project_guid } = req.params;
+        const status = await Status.findAll({where : {project_guid}});
         if (status) {
             res.json(status);
         } else {

@@ -1,6 +1,4 @@
-const ProjectMember = require('../models/ProjectMember')
-const  Projects = require('../models/Projects'); // Assuming the models are imported here
-const User = require('../models/User');
+const {ProjectMember, User, Projects, Tickets, Status, Types} = require('../models')
 const { project } = require('../routes');
 exports.createProject = async (req, res) => {
     try {
@@ -49,11 +47,11 @@ exports.getProjectsByUserId = async (req, res) => {
 
                 // Fetch detailed user information for each member
                 const memberDetails = await Promise.all(projectMembers.map(async (member) => {
-                    const user = await User.findByPk(member.user_id); // Fetch user by user_id
-                    return user ? user.toJSON() : null; // Convert to JSON and handle null case
+                    const user = await User.findByPk(member.user_id); 
+                    return user ? user.toJSON() : null; 
                 }));
 
-                return { ...p.toJSON(), members: memberDetails.filter(Boolean) }; // Ensure to filter out null users
+                return { ...p.toJSON(), members: memberDetails.filter(Boolean) }; 
             }));
 
             res.json(userProjects);
@@ -72,17 +70,26 @@ exports.getProjectsByUserId = async (req, res) => {
 // Get a project by ID
 exports.getProjectById = async (req, res) => {
     try {
-        const { id } = req.params;
-        const project = await Projects.findByPk(id);
-        if (project) {
-            res.json(project);
-        } else {
-            res.status(404).json({ error: 'Project not found.' });
+        const { guid } = req.params;
+
+        const project = await Projects.findOne({ where: { guid } });
+        const types = await Types.findAll({ where: {project_guid: guid } });
+        const statuses = await Status.findAll({ where: {project_guid: guid}});
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found.' });
         }
+         
+        res.json({
+            project,
+            types,
+            statuses
+        });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching the project.' });
+        res.status(500).json({ error: 'An error occurred while fetching the project and tickets.', details: error.message });
     }
 };
+
+
 
 // Update a project by ID
 exports.updateProject = async (req, res) => {

@@ -38,7 +38,7 @@ const signup = async (req, res) => {
             email,
             username,
             password: hashedPassword,
-            roles,
+            role: roles,
             organization_id: orgId, // Use the existing or newly created organization ID
             color: color || '#878787'  // Default to '#878787' if no color is provided
         });

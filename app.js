@@ -30,7 +30,7 @@ const { checkToken } = require('./controllers/Account');
 const app = express();
 const port = 3001
 // Sync models with the database
-sequelize.sync({ alter: true }) 
+//sequelize.sync({ alter: true }) 
 app.use(cors());
 app.use(session({
     secret: process.env.jwt_secret_token, 

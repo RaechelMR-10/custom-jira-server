@@ -11,4 +11,6 @@ router.delete('/status/delete/:id', statusController.deleteStatus);
 // Get all statuses
 router.get('/statuses', statusController.getAllStatuses);
 
+router.get('/statuses/:project_guid', statusController.getStatusById)
+
 module.exports = router;
