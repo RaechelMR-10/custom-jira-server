@@ -30,7 +30,6 @@ exports.createTicket = async (req, res) => {
         });
     }
 };
-
 // Get a ticket by GUID
 exports.getTicketById = async (req, res) => {
     try {
@@ -39,27 +38,29 @@ exports.getTicketById = async (req, res) => {
         // Fetch the ticket by GUID
         const ticket = await Tickets.findOne({ where: { guid } });
         
-        if (ticket) {
-            const ticketJson = ticket.toJSON(); // Convert ticket to plain JSON
-            
-            // Fetch user details using reporter_user_id if it exists
-            if (ticketJson.reporter_user_id) {
-                const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
-                    attributes: ['id', 'first_name','last_name' ,'email','color'] // Specify fields to include
-                });
-                ticketJson.reporter = reporter ? reporter.toJSON() : null; // Add reporter details
-            } else {
-                ticketJson.reporter = null; // No reporter if reporter_user_id is null
-            }
-
-            res.json(ticketJson); // Return the ticket with reporter details
-        } else {
-            res.status(404).json({ error: 'Ticket not found.' });
+        if (!ticket) {
+            return res.status(404).json({ error: 'Ticket not found.' });
         }
+
+        const ticketJson = ticket.toJSON(); // Convert ticket to plain JSON
+
+        // Fetch user details using reporter_user_id if it exists
+        if (ticketJson.reporter_user_id) {
+            const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
+                attributes: ['id', 'first_name', 'last_name', 'email', 'color'] // Specify fields to include
+            });
+            ticketJson.reporter = reporter ? reporter.toJSON() : null; // Add reporter details
+        } else {
+            ticketJson.reporter = null; // No reporter if reporter_user_id is null
+        }
+
+        // Return the ticket with reporter details
+        res.json(ticketJson);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the ticket.', detail: error.message });
     }
 };
+
 
 exports.updateTicket = async (req, res) => {
     try {

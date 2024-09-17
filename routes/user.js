@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { updateUser, getUser, deleteUser, getAllUsersByOrganizationID, getAllOrgUserThatIsNotMember } = require('../controllers/User');
+const { updateUser, getUser, deleteUser, getAllUsersByOrganizationID, getAllOrgUserThatIsNotMember , getProjectMembers} = require('../controllers/User');
 
 // Update User
 router.put('/update/:id', async (req, res) => {
@@ -43,5 +43,6 @@ router.get('/list/:organization_id/:project_guid', getAllOrgUserThatIsNotMember 
 
 router.delete('/delete/:id', deleteUser);
 
+router.get('/project-members/:guid', getProjectMembers);
 
 module.exports = router;

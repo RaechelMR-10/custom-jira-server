@@ -59,6 +59,10 @@ const Tickets = sequelize.define('Tickets',{
         type: DataTypes.UUID,
         allowNull: true
     },
+    project_prefix:{
+        type: DataTypes.STRING,
+        allowNull: true
+    }
 },{
     tableName: 'Tickets'
 })

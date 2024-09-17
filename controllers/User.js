@@ -1,5 +1,6 @@
 const {Users, Projects, Organization, ProjectMember} = require('../models');
 const { Op } = require('sequelize');
+const User = require('../models/User');
 
 const updateUser = async (id, updateData) => {
     const { first_name,middle_name, last_name, email, username, color, organization_id } = updateData;
@@ -141,6 +142,44 @@ const deleteUser = async( req, res) =>{
     }
 }
 
+const getProjectMembers = async (req, res) => {
+    try {
+        const { guid } = req.params;
+
+        const project = await Projects.findOne({ where: { guid: guid } });
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found.' });
+        }
+
+        const projectId = project.id;
+
+        const allMembersId = await ProjectMember.findAll({ 
+            where: { project_id: projectId }
+        });
+
+        const users = await Promise.all(allMembersId.map(async (memID) => {
+            const user = await User.findOne({ where: { id: memID.user_id } }); 
+            if (!user) return null; 
+
+            const projMemberData = await ProjectMember.findOne({ 
+                where: { project_id: projectId, user_id: memID.user_id }
+            });
+            
+            return {
+                ...hideSensitiveData(user),
+                project_role: projMemberData ? projMemberData.role : null
+            };
+        }));
+
+        const validUsers = users.filter(user => user !== null);
+
+        return res.json([...validUsers]);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while fetching the project members.', details: error.message });
+    }
+};
+
+
 const hideSensitiveData = (user) => {
     const userObj = user.toJSON ? user.toJSON() : user;
     const { password, ...userWithoutPassword } = userObj;
@@ -155,5 +194,6 @@ module.exports = {
     deleteUser,
     getAllUsersByOrganizationID,
     getAllOrgUserThatIsNotMember,
-    hideSensitiveData
+    hideSensitiveData,
+    getProjectMembers
 };
