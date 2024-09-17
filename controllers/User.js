@@ -154,5 +154,6 @@ module.exports = {
     getUser,
     deleteUser,
     getAllUsersByOrganizationID,
-    getAllOrgUserThatIsNotMember
+    getAllOrgUserThatIsNotMember,
+    hideSensitiveData
 };

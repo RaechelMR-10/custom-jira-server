@@ -4,6 +4,7 @@ const Status = require('../models/Status');
 const Types = require('../models/Types');
 const ProjectMember = require('../models/ProjectMember');
 const User = require('../models/User')
+const {hideSensitiveData} = require('../controllers/User');
 const { project } = require('../routes');
 exports.createProject = async (req, res) => {
     try {
@@ -24,16 +25,35 @@ exports.createProject = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the project.', details: error.message });
     }
 };
-exports.addProjectMember = async(req, res) => {
-    try{
-        const {user_id, project_id, role}= req.body;
-        const newMember = await ProjectMember.create({ user_id, project_id, role: 'member'});
+
+exports.addProjectMember = async (req, res) => {
+    try {
+        const { user_id, project_guid } = req.body;
+
+        const project = await Projects.findOne({
+            where: { guid: project_guid },
+            attributes: ['id']
+        });
+
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+
+        const projectId = project.id;
+
+        // Add the new project member
+        const newMember = await ProjectMember.create({
+            user_id,
+            project_id: projectId,
+            role: 'member'
+        });
+
         res.status(201).json(newMember);
-    }
-    catch (error) {
+    } catch (error) {
         res.status(500).json({ error: 'An error occurred while adding project member.', details: error.message });
     }
-}
+};
+
 
 exports.getProjectsByUserId = async (req, res) => {
     const { id } = req.params;
@@ -88,14 +108,34 @@ exports.getProjectById = async (req, res) => {
         const { guid } = req.params;
 
         const project = await Projects.findOne({ where: { guid } });
-        const types = await Types.findAll({ where: {project_guid: guid } });
-        const statuses = await Status.findAll({ where: {project_guid: guid}});
         if (!project) {
             return res.status(404).json({ error: 'Project not found.' });
         }
-         
+
+        const projectMembers = await ProjectMember.findAll({ where: { project_id: project.id } });
+        const projectUsers = projectMembers.map(pmu => pmu.user_id);
+
+        // Fetch users
+        const allUsers = await Promise.all(projectUsers.map(async (userId) => {
+            const user = await User.findOne({ where: { id: userId } });
+            return user ? user.toJSON() : null;
+        }));
+
+        // Map users with roles and hide sensitive data
+        const allProjectMembers = allUsers.map(user => {
+            const projMemberData = projectMembers.find(member => member.user_id === user.id);
+            return {
+                ...hideSensitiveData(user),
+                project_role: projMemberData ? projMemberData.role : null
+            };
+        });
+
+        const types = await Types.findAll({ where: { project_guid: guid } });
+        const statuses = await Status.findAll({ where: { project_guid: guid } });
+
         res.json({
             project,
+            projectMembers: allProjectMembers,
             types,
             statuses
         });
@@ -103,7 +143,6 @@ exports.getProjectById = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching the project and tickets.', details: error.message });
     }
 };
-
 
 
 // Update a project by ID
