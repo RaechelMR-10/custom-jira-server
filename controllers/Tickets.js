@@ -1,4 +1,4 @@
-const {Tickets, Users, Types, Status} = require('../models');
+const {Tickets, Users, Types, Status, Projects} = require('../models');
 // Create a new ticket
 
 // Create a new ticket
@@ -158,11 +158,16 @@ exports.getTicketsByAssigneeUserId = async (req, res) => {
         const tickets = await Tickets.findAll({
             where: { assignee_user_id }
         });
-        const statusDetails= await Promise.all(tickets.map( async (statId)=>{
-            const statusData = await Status.findOne({where:{id: statId.status_id}});
+        const statusDetails= await Promise.all(tickets.map( async (detail)=>{
+            const statusData = await Status.findOne({where:{id: detail.status_id}});
+            const typeData = await Types.findOne({where:{id: detail.type_id}});
+            const projectData = await Projects.findOne({ where:{ guid: detail.project_guid}});
             return ({
-                ...statId.toJSON(),
-                status_details: statusData ? statusData.toJSON() : null
+                ...detail.toJSON(),
+                status_details: statusData ? statusData.toJSON() : null,
+                type_details: typeData ? typeData.toJSON() : null ,
+                project_details: projectData ? projectData.toJSON() : null
+
             });
         }))
 

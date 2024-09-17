@@ -19,7 +19,18 @@ exports.createProject = async (req, res) => {
             project_id: newProject.id, 
             role: 'manager' 
         });
+        // Create statuses TODO and DONE
+        await Status.bulkCreate([
+            { name: 'TODO', project_guid: newProject.guid },
+            { name: 'DONE', project_guid: newProject.guid }
+        ]);
 
+        // Create a type DEFAULT with the icon t1
+        await Types.create({
+            name: 'DEFAULT',
+            icon: 't1',
+            project_guid: newProject.guid
+        });
         res.status(201).json(newProject);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the project.', details: error.message });
