@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { updateUser, getUser, deleteUser, getAllUsersByOrganizationID } = require('../controllers/User');
+const { updateUser, getUser, deleteUser, getAllUsersByOrganizationID, getAllOrgUserThatIsNotMember } = require('../controllers/User');
 
 // Update User
 router.put('/update/:id', async (req, res) => {
@@ -39,6 +39,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/list/:organization_id/:project_guid', getAllOrgUserThatIsNotMember );
 
 router.delete('/delete/:id', deleteUser);
 

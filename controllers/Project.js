@@ -1,4 +1,9 @@
-const {ProjectMember, User, Projects, Tickets, Status, Types} = require('../models')
+const Tickets = require('../models/Tickets');
+const Projects = require('../models/Projects');
+const Status = require('../models/Status');
+const Types = require('../models/Types');
+const ProjectMember = require('../models/ProjectMember');
+const User = require('../models/User')
 const { project } = require('../routes');
 exports.createProject = async (req, res) => {
     try {
@@ -29,6 +34,7 @@ exports.addProjectMember = async(req, res) => {
         res.status(500).json({ error: 'An error occurred while adding project member.', details: error.message });
     }
 }
+
 exports.getProjectsByUserId = async (req, res) => {
     const { id } = req.params;
     try {
