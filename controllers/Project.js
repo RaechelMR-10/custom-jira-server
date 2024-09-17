@@ -19,7 +19,16 @@ exports.createProject = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the project.', details: error.message });
     }
 };
-
+exports.addProjectMember = async(req, res) => {
+    try{
+        const {user_id, project_id, role}= req.body;
+        const newMember = await ProjectMember.create({ user_id, project_id, role: 'member'});
+        res.status(201).json(newMember);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'An error occurred while adding project member.', details: error.message });
+    }
+}
 exports.getProjectsByUserId = async (req, res) => {
     const { id } = req.params;
     try {

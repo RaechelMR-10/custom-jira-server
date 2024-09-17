@@ -21,4 +21,7 @@ router.get('/user_list/:id', projectsController.getUsersByProjectId);
 router.get('/:organization_id', projectsController.getProjectsByOrganizationId);
 
 router.delete('/delete/:id', projectsController.deleteProject)
+
+router.post('/add-member', projectsController.addProjectMember);
+
 module.exports = router;
