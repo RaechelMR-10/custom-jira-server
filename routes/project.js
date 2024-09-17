@@ -20,7 +20,7 @@ router.get('/user_list/:id', projectsController.getUsersByProjectId);
 // Get all projects by organization ID
 router.get('/:organization_id', projectsController.getProjectsByOrganizationId);
 
-router.delete('/delete/:id', projectsController.deleteProject)
+router.delete('/delete/:guid', projectsController.deleteProject)
 
 router.post('/add-member', projectsController.addProjectMember);
 

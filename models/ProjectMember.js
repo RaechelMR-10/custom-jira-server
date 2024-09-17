@@ -1,5 +1,6 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../config/database');
+const Projects = require('./Projects')
 
 const ProjectMember = sequelize.define('ProjectMember',{
     id:{
@@ -31,5 +32,6 @@ const ProjectMember = sequelize.define('ProjectMember',{
 },{
     tableName: 'ProjectMembers'
 })
+
 
 module.exports= ProjectMember;

@@ -264,19 +264,42 @@ exports.getUsersByProjectId = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-// Delete a project by ID
+
 exports.deleteProject = async (req, res) => {
+    const { guid } = req.params;
+
     try {
-        const { id } = req.params;
-        const deleted = await Projects.destroy({
-            where: { id }
-        });
-        if (deleted) {
-            res.status(204).send(); // No content
-        } else {
-            res.status(404).json({ error: 'Project not found.' });
+        // Find the project
+        const project = await Projects.findOne({where: {guid}});
+
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found' });
         }
+
+        // Delete associated ProjectMembers
+        await ProjectMember.destroy({
+            where: { project_id: project.id }
+        });
+
+        
+        await Tickets.destroy({
+            where: { project_guid: project.guid }
+        });
+
+        await Status.destroy({
+            where: { project_guid: project.guid }
+        });
+
+        await Types.destroy({
+            where: { project_guid: project.guid }
+        });
+
+        // Delete the project
+        await project.destroy();
+
+        res.status(200).json({ message: 'Project and associated members deleted successfully' });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while deleting the project.' });
+        console.error(error);
+        res.status(500).json({ message: 'An error occurred while deleting the project' });
     }
 };
