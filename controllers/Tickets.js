@@ -1,4 +1,4 @@
-const {Tickets, Users} = require('../models');
+const {Tickets, Users, Types, Status} = require('../models');
 // Create a new ticket
 
 // Create a new ticket
@@ -158,9 +158,17 @@ exports.getTicketsByAssigneeUserId = async (req, res) => {
         const tickets = await Tickets.findAll({
             where: { assignee_user_id }
         });
-        res.json(tickets);
+        const statusDetails= await Promise.all(tickets.map( async (statId)=>{
+            const statusData = await Status.findOne({where:{id: statId.status_id}});
+            return ({
+                ...statId.toJSON(),
+                status_details: statusData ? statusData.toJSON() : null
+            });
+        }))
+
+        res.json(statusDetails);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching tickets by assignee user ID.' });
+        res.status(500).json({ error: 'An error occurred while fetching tickets by assignee user ID.', details: error.message});
     }
 };
 
@@ -178,11 +186,14 @@ exports.getTicketsByProjectGuid = async (req, res) => {
 
                 if (ticketJson.reporter_user_id) {
                     const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
-                        attributes: ['id', 'first_name','last_name', 'email', 'organization_id']
+                        attributes: ['id', 'first_name','last_name', 'email']
                     });
+                    const type_details =await Types.findByPk(ticketJson.type_id);
+                    ticketJson.type_details = type_details? type_details.toJSON(): null;
                     ticketJson.reporter = reporter ? reporter.toJSON() : null; 
                 } else {
                     ticketJson.reporter = null; 
+                    ticketJson.type_details= null;
                 }
 
                 return ticketJson; 
