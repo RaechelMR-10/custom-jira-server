@@ -4,16 +4,20 @@ const {Tickets, Users, Types, Status, Projects} = require('../models');
 // Create a new ticket
 exports.createTicket = async (req, res) => {
     try {
-        const { title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id, project_guid } = req.body;
-        const  statId = await Status.findOne({ where:{project_guid: project_guid, isDefault: true}, attributes:['id']});
-        const  typeId = await Types.findOne({ where:{project_guid: project_guid, isDefault: true}, attributes:['id']});
+        const { title, description, resolution, reporter_user_id, assignee_user_id, project_guid } = req.body;
+        const  statId = await Status.findOne({ where:{project_guid, isDefault: true}});
+        const  typeId = await Types.findOne({ where:{project_guid, isDefault: true}});
+
+        if (!statId || !typeId) {
+            return res.status(400).json({ message: 'Default status or type not found.' });
+        }
         // Create ticket
         const newTicket = await Tickets.create({
             title,
             description,
-            status_id: statId,
+            status_id: statId.id,
             resolution,
-            type_id: typeId,
+            type_id: typeId.id,
             reporter_user_id,
             assignee_user_id,
             project_guid
