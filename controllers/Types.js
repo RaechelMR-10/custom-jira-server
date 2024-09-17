@@ -4,7 +4,7 @@ const Types = require('../models/Types'); // Adjust the path as necessary
 exports.createType = async (req, res) => {
     try {
         const { name, icon, project_guid } = req.body;
-        const newType = await Types.create({ name, icon, project_guid });
+        const newType = await Types.create({ name, icon, project_guid , isDefault: false});
         res.status(201).json(newType);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the type.' , details: error.message });
@@ -29,10 +29,17 @@ exports.getTypeById = async (req, res) => {
 // Update a type by ID
 exports.updateType = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, icon } = req.body;
-        const [updated] = await Types.update({ name, icon }, {
-            where: { id }
+        const { id , project_guid} = req.params;
+        const { isDefault } = req.body;
+
+        if (isDefault) {
+            await Types.update({ isDefault: false }, {
+                where: { project_guid }
+            });
+        }
+
+        const [updated] = await Types.update({isDefault }, {
+            where: { id, project_guid }
         });
         if (updated) {
             const updatedType = await Types.findByPk(id);

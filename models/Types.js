@@ -18,6 +18,10 @@ const Types = sequelize.define('Types', {
     project_guid:{
         type: DataTypes.UUID,
         allowNull: true
+    },
+    isDefault:{
+        type: DataTypes.BOOLEAN,
+        allowNull: true
     }
 },{
     tableName: 'Types'

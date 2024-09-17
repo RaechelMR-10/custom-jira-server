@@ -19,17 +19,19 @@ exports.createProject = async (req, res) => {
             project_id: newProject.id, 
             role: 'manager' 
         });
+
         // Create statuses TODO and DONE
         await Status.bulkCreate([
-            { name: 'TODO', project_guid: newProject.guid },
-            { name: 'DONE', project_guid: newProject.guid }
+            { name: 'TODO', project_guid: newProject.guid , isDefault: true},
+            { name: 'DONE', project_guid: newProject.guid , isDefault: false}
         ]);
 
         // Create a type DEFAULT with the icon t1
         await Types.create({
             name: 'DEFAULT',
             icon: 't1',
-            project_guid: newProject.guid
+            project_guid: newProject.guid,
+            isDefault: true
         });
         res.status(201).json(newProject);
     } catch (error) {

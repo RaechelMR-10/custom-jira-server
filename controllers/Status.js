@@ -4,7 +4,7 @@ const Status = require('../models/Status');
 exports.createStatus = async (req, res) => {
     try {
         const { name, color, project_guid } = req.body;
-        const newStatus = await Status.create({ name, color, project_guid });
+        const newStatus = await Status.create({ name, color, project_guid , isDefault: false});
         res.status(201).json(newStatus);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the status.' });
@@ -29,11 +29,21 @@ exports.getStatusById = async (req, res) => {
 // Update a status by ID
 exports.updateStatus = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, color } = req.body;
-        const [updated] = await Status.update({ name, color }, {
-            where: { id }
+        const { id, project_guid } = req.params;
+        const { isDefault } = req.body;
+
+        if (isDefault) {
+            // Set all statuses in the same project to isDefault: false
+            await Status.update({ isDefault: false }, {
+                where: { project_guid }
+            });
+        }
+
+        // Update the specific status
+        const [updated] = await Status.update({ isDefault }, {
+            where: { id, project_guid }
         });
+
         if (updated) {
             const updatedStatus = await Status.findByPk(id);
             res.json(updatedStatus);

@@ -5,14 +5,15 @@ const {Tickets, Users, Types, Status, Projects} = require('../models');
 exports.createTicket = async (req, res) => {
     try {
         const { title, description, status_id, resolution, type_id, reporter_user_id, assignee_user_id, project_guid } = req.body;
-
+        const  statId = await Status.findOne({ where:{project_guid: project_guid, isDefault: true}, attributes:['id']});
+        const  typeId = await Types.findOne({ where:{project_guid: project_guid, isDefault: true}, attributes:['id']});
         // Create ticket
         const newTicket = await Tickets.create({
             title,
             description,
-            status_id,
+            status_id: statId,
             resolution,
-            type_id,
+            type_id: typeId,
             reporter_user_id,
             assignee_user_id,
             project_guid
