@@ -85,7 +85,9 @@ exports.deleteType = async (req, res) => {
         });
 
         if (deleted) {
-            res.status(200).send('Type successfully deleted.');
+            res.status(200).send({message:'Successfully deleted type with the id=${id}',
+                id: id
+            });
         } else {
             res.status(404).json({ error: 'Type not found.' });
         }

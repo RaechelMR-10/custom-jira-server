@@ -19,4 +19,15 @@ ProjectMember.belongsTo(Projects, {
     foreignKey: 'project_id'
 });
 
+
+
+Tickets.belongsTo(Users, { as: 'reporter', foreignKey: 'reporter_user_id' , onDelete: 'NO ACTION'});
+Tickets.belongsTo(Users, { as: 'assignee', foreignKey: 'assignee_user_id', onDelete: 'NO ACTION' });
+Tickets.belongsTo(Types, { as: 'type_details', foreignKey: 'type_id', onDelete: 'NO ACTION' });
+
+
+Users.hasMany(Tickets, { as: 'reportedTickets', foreignKey: 'reporter_user_id' , onDelete: 'NO ACTION'});
+Users.hasMany(Tickets, { as: 'assignedTickets', foreignKey: 'assignee_user_id' , onDelete: 'NO ACTION'});
+
+
 module.exports = { sequelize, Users, Organization, Projects,ProjectMember, Status, TicketComments, TicketHistory, Tickets, Types };

@@ -88,7 +88,9 @@ exports.deleteStatus = async (req, res) => {
         });
 
         if (deleted) {
-            res.status(200).send('Status successfully deleted.');
+            res.status(200).send({message:'Successfully deleted status with the id=${id}',
+                id: id
+            });
         } else {
             res.status(404).json({ error: 'Status not found.' });
         }

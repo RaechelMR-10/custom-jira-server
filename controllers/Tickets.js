@@ -1,4 +1,6 @@
 const {Tickets, Users, Types, Status, Projects} = require('../models');
+const { Op } = require('sequelize');
+
 // Create a new ticket
 
 // Create a new ticket
@@ -182,34 +184,109 @@ exports.getTicketsByAssigneeUserId = async (req, res) => {
     }
 };
 
+// exports.getTicketsByProjectGuid = async (req, res) => {
+//     const { project_guid } = req.params;
+//   
+    
+//     try {
+//         const tickets = await Tickets.findAll({
+//             where: { project_guid }
+//         });
+
+//         if (tickets.length > 0) {
+//             const ticketsWithReporters = await Promise.all(tickets.map(async (ticket) => {
+//                 const ticketJson = ticket.toJSON(); 
+
+//                 if (ticketJson.reporter_user_id) {
+//                     const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
+//                         attributes: ['id', 'first_name','last_name', 'email']
+//                     });
+//                     const type_details =await Types.findByPk(ticketJson.type_id);
+//                     ticketJson.type_details = type_details? type_details.toJSON(): null;
+//                     ticketJson.reporter = reporter ? reporter.toJSON() : null; 
+//                 } else {
+//                     ticketJson.reporter = null; 
+//                     ticketJson.type_details= null;
+//                 }
+
+//                 return ticketJson; 
+//             }));
+
+//             res.json(ticketsWithReporters);
+//         } else {
+//             // No tickets found for the given project_guid
+//             res.status(404).json({ error: 'No tickets found for this project.' });
+//         }
+//     } catch (error) {
+//         // Handle any unexpected errors
+//         console.error('Error fetching tickets:', error); // Log error details for debugging
+//         res.status(500).json({ error: 'An error occurred while fetching the tickets.' });
+//     }
+
+// };
+
+
+
 exports.getTicketsByProjectGuid = async (req, res) => {
     const { project_guid } = req.params;
+    const { page, limit, keyword, sortBy, sortOrder = 'ASC', type, status, reporter, assignee } = req.query;
 
     try {
-        const tickets = await Tickets.findAll({
-            where: { project_guid }
+        const whereClause = { project_guid };
+
+        if (keyword) {
+            whereClause.title = { [Op.like]: `%${keyword}%` }; 
+        }
+        if (type) {
+            whereClause.type_id = type;
+        }
+        if (status) {
+            whereClause.status_id = status;
+        }
+        if (reporter) {
+            whereClause.reporter_user_id = reporter;
+        }
+        if (assignee) {
+            whereClause.assignee_user_id = assignee;
+        }
+
+        // Ensure sortBy is a valid column in Tickets model
+        const validSortColumns = ['createdAt', 'updatedAt', 'id']; // Add valid columns
+        const orderBy = validSortColumns.includes(sortBy) ? [sortBy, sortOrder] : ['createdAt', 'ASC'];
+
+        // Get tickets with filtering, pagination, and sorting
+        const tickets = await Tickets.findAndCountAll({
+            where: whereClause,
+            limit: parseInt(limit, 10),
+            offset: (parseInt(page, 10) - 1) * parseInt(limit, 10),
+            order: [orderBy]
         });
 
-        if (tickets.length > 0) {
-            const ticketsWithReporters = await Promise.all(tickets.map(async (ticket) => {
+        if (tickets.rows.length > 0) {
+            const ticketsWithDetails = await Promise.all(tickets.rows.map(async (ticket) => {
                 const ticketJson = ticket.toJSON(); 
 
                 if (ticketJson.reporter_user_id) {
                     const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
-                        attributes: ['id', 'first_name','last_name', 'email']
+                        attributes: ['id', 'first_name', 'last_name', 'email']
                     });
-                    const type_details =await Types.findByPk(ticketJson.type_id);
-                    ticketJson.type_details = type_details? type_details.toJSON(): null;
+                    const type_details = await Types.findByPk(ticketJson.type_id);
+                    ticketJson.type_details = type_details ? type_details.toJSON() : null;
                     ticketJson.reporter = reporter ? reporter.toJSON() : null; 
                 } else {
                     ticketJson.reporter = null; 
-                    ticketJson.type_details= null;
+                    ticketJson.type_details = null;
                 }
 
                 return ticketJson; 
             }));
 
-            res.json(ticketsWithReporters);
+            res.json({
+                tickets: ticketsWithDetails,
+                total: tickets.count,
+                page: parseInt(page, 10),
+                limit: parseInt(limit, 10)
+            });
         } else {
             // No tickets found for the given project_guid
             res.status(404).json({ error: 'No tickets found for this project.' });
@@ -219,5 +296,4 @@ exports.getTicketsByProjectGuid = async (req, res) => {
         console.error('Error fetching tickets:', error); // Log error details for debugging
         res.status(500).json({ error: 'An error occurred while fetching the tickets.' });
     }
-
 };

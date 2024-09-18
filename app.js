@@ -22,6 +22,7 @@ const authRouter = require('./routes/account')
 const projectsRouter = require('./routes/project');
 const statusRouter = require('./routes/status');
 const organizationRouter = require('./routes/organization');
+const projectmemberRouter= require('./routes/projectmember');
 const typesRouter = require('./routes/types');
 const ticketCommentsRouter = require('./routes/ticketcomments'); 
 const ticketsRouter = require('./routes/tickets'); 
@@ -60,7 +61,7 @@ app.use('/account',logRequest, authRouter);
 app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter);
 app.use('/organization', logRequest, organizationRouter);
 app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
-
+app.use('/project-member', logRequest, projectmemberRouter);
   
  
 // Error handling middleware
