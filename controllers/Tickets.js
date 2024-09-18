@@ -229,7 +229,7 @@ exports.getTicketsByAssigneeUserId = async (req, res) => {
 
 exports.getTicketsByProjectGuid = async (req, res) => {
     const { project_guid } = req.params;
-    const { page, limit, keyword, sortBy, sortOrder = 'ASC', type, status, reporter, assignee } = req.query;
+    const { page, limit, keyword, sortBy, sortOrder, type, status, reporter, assignee } = req.query;
 
     try {
         const whereClause = { project_guid };
@@ -251,8 +251,11 @@ exports.getTicketsByProjectGuid = async (req, res) => {
         }
 
         // Ensure sortBy is a valid column in Tickets model
-        const validSortColumns = ['createdAt', 'updatedAt', 'id']; // Add valid columns
-        const orderBy = validSortColumns.includes(sortBy) ? [sortBy, sortOrder] : ['createdAt', 'ASC'];
+        const validSortColumns = ['createdAt', 'updatedAt', 'id'];//sortBy
+        const validSortOrders = ['ASC', 'DESC'];//sortOrder
+        const orderBy = validSortColumns.includes(sortBy) && validSortOrders.includes(sortOrder.toUpperCase())
+        ? [sortBy, sortOrder.toUpperCase()]
+        : ['createdAt', 'ASC'];
 
         // Get tickets with filtering, pagination, and sorting
         const tickets = await Tickets.findAndCountAll({
