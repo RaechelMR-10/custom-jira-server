@@ -57,29 +57,27 @@ exports.deleteType = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Find a ticket with the type_id that is being deleted
+        // Check if any tickets have the type_id that is being deleted
         const ticket = await Tickets.findOne({ where: { type_id: id } });
 
-        if (!ticket) {
-            return res.status(404).json({ error: 'No tickets found with the given type.' });
+        if (ticket) {
+            // Get the project GUID from the ticket
+            const ticketProjGuid = ticket.project_guid;
+
+            // Find the default type for the project
+            const defaultTypeDetails = await Types.findOne({ where: { project_guid: ticketProjGuid, isDefault: true } });
+
+            if (!defaultTypeDetails) {
+                return res.status(404).json({ error: 'Default type not found for this project.' });
+            }
+
+            const defaultTypeId = defaultTypeDetails.id;
+
+            // Update tickets to assign the default type where the old type was used
+            await Tickets.update({ type_id: defaultTypeId }, {
+                where: { type_id: id }
+            });
         }
-
-        // Get the project GUID from the ticket
-        const ticketProjGuid = ticket.project_guid;
-
-        // Find the default type for the project
-        const defaultTypeDetails = await Types.findOne({ where: { project_guid: ticketProjGuid, isDefault: true } });
-
-        if (!defaultTypeDetails) {
-            return res.status(404).json({ error: 'Default type not found for this project.' });
-        }
-
-        const defaultTypeId = defaultTypeDetails.id;
-
-        // Update tickets to assign the default type where the old type was used
-        await Tickets.update({ type_id: defaultTypeId }, {
-            where: { type_id: id }
-        });
 
         // Delete the old type
         const deleted = await Types.destroy({
@@ -87,7 +85,7 @@ exports.deleteType = async (req, res) => {
         });
 
         if (deleted) {
-            res.status(200).send('Type successfully deleted and tickets reassigned to default type.');
+            res.status(200).send('Type successfully deleted.');
         } else {
             res.status(404).json({ error: 'Type not found.' });
         }

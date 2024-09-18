@@ -50,7 +50,7 @@ const getAllUsersByOrganizationID = async (organization_id, page, pageSize) => {
 
         // Fetch users with pagination
         const users = await Users.findAll({
-            where: { organization_id: organization_id },
+            where: { organization_id: organization_id , isActive: true},
             limit: pageSize,
             offset: offset
         });
@@ -95,7 +95,8 @@ const getAllOrgUserThatIsNotMember = async (req, res) => {
                 organization_id,
                 id: {
                     [Op.notIn]: projMemberUserIds
-                }
+                },
+                isActive: true
             }
         });
 
@@ -104,6 +105,7 @@ const getAllOrgUserThatIsNotMember = async (req, res) => {
                 id: {
                     [Op.in]: projMemberUserIds
                 },
+                isActive: true
             }
         });
         const org_member = users.map(hideSensitiveData);

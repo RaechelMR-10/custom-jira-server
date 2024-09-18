@@ -55,35 +55,32 @@ exports.updateStatus = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while updating the status.' });
     }
 };
-
 // Delete a status by ID
 exports.deleteStatus = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Find a ticket with the status_id that is being deleted
+        // Check if any tickets have the status_id that is being deleted
         const ticket = await Tickets.findOne({ where: { status_id: id } });
-        
-        if (!ticket) {
-            return res.status(404).json({ error: 'No tickets found with the given status.' });
+
+        if (ticket) {
+            // Get the project GUID from the ticket
+            const ticketProjGuid = ticket.project_guid;
+
+            // Find the default status for the project
+            const defaultStatusDetails = await Status.findOne({ where: { project_guid: ticketProjGuid, isDefault: true } });
+
+            if (!defaultStatusDetails) {
+                return res.status(404).json({ error: 'Default status not found for this project.' });
+            }
+
+            const defaultStatusId = defaultStatusDetails.id;
+
+            // Update tickets to assign the default status where the old status was used
+            await Tickets.update({ status_id: defaultStatusId }, {
+                where: { status_id: id }
+            });
         }
-
-        // Get the project GUID from the ticket
-        const ticketProjGuid = ticket.project_guid;
-
-        // Find the default status for the project
-        const defaultStatusDetails = await Status.findOne({ where: { project_guid: ticketProjGuid, isDefault: true } });
-
-        if (!defaultStatusDetails) {
-            return res.status(404).json({ error: 'Default status not found for this project.' });
-        }
-
-        const defaultStatusId = defaultStatusDetails.id;
-
-        // Update tickets to assign the default status where the old status was used
-        await Tickets.update({ status_id: defaultStatusId }, {
-            where: { status_id: id }
-        });
 
         // Delete the old status
         const deleted = await Status.destroy({
@@ -91,7 +88,7 @@ exports.deleteStatus = async (req, res) => {
         });
 
         if (deleted) {
-            res.status(200).send('Status successfully deleted and tickets reassigned to default status.');
+            res.status(200).send('Status successfully deleted.');
         } else {
             res.status(404).json({ error: 'Status not found.' });
         }
@@ -99,6 +96,7 @@ exports.deleteStatus = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while deleting the status.', details: error.message });
     }
 };
+
 
 // Get all statuses
 exports.getAllStatuses = async (req, res) => {
