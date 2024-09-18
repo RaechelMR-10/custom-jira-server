@@ -1,3 +1,4 @@
+const { Tickets } = require('../models');
 const Status = require('../models/Status'); 
 
 // Create a new status
@@ -59,16 +60,43 @@ exports.updateStatus = async (req, res) => {
 exports.deleteStatus = async (req, res) => {
     try {
         const { id } = req.params;
+
+        // Find a ticket with the status_id that is being deleted
+        const ticket = await Tickets.findOne({ where: { status_id: id } });
+        
+        if (!ticket) {
+            return res.status(404).json({ error: 'No tickets found with the given status.' });
+        }
+
+        // Get the project GUID from the ticket
+        const ticketProjGuid = ticket.project_guid;
+
+        // Find the default status for the project
+        const defaultStatusDetails = await Status.findOne({ where: { project_guid: ticketProjGuid, isDefault: true } });
+
+        if (!defaultStatusDetails) {
+            return res.status(404).json({ error: 'Default status not found for this project.' });
+        }
+
+        const defaultStatusId = defaultStatusDetails.id;
+
+        // Update tickets to assign the default status where the old status was used
+        await Tickets.update({ status_id: defaultStatusId }, {
+            where: { status_id: id }
+        });
+
+        // Delete the old status
         const deleted = await Status.destroy({
             where: { id }
         });
+
         if (deleted) {
-            res.status(204).send(); // No content
+            res.status(200).send('Status successfully deleted and tickets reassigned to default status.');
         } else {
             res.status(404).json({ error: 'Status not found.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while deleting the status.' });
+        res.status(500).json({ error: 'An error occurred while deleting the status.', details: error.message });
     }
 };
 

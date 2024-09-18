@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
 
 router.get('/list/:organization_id/:project_guid', getAllOrgUserThatIsNotMember );
 
-router.delete('/delete/:id', deleteUser);
+router.put('/delete/:guid', deleteUser);
 
 router.get('/project-members/:guid', getProjectMembers);
 

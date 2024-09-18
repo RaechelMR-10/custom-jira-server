@@ -55,6 +55,10 @@ const User = sequelize.define('User', {
     role:{
         type: DataTypes.STRING,
         allowNull: true
+    },
+    isActive:{
+        type: DataTypes.BOOLEAN,
+        allowNull: true
     }
 }, {
     tableName: 'Users',
