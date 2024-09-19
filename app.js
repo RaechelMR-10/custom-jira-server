@@ -12,7 +12,6 @@ const TicketComments = require('./models/TicketComments');
 const Types = require('./models/Types');
 const Projects = require('./models/Projects');
 const ProjectMember = require('./models/ProjectMember');
-
 const tediousConnection = require('./config/tediousconn'); 
 const router = express.Router();
 const cors = require('cors');
@@ -27,6 +26,7 @@ const typesRouter = require('./routes/types');
 const ticketCommentsRouter = require('./routes/ticketcomments'); 
 const ticketsRouter = require('./routes/tickets'); 
 const ticketHistoryRouter = require('./routes/tickethistory')
+
 const { checkToken } = require('./controllers/Account');
 const app = express();
 const port = 3001

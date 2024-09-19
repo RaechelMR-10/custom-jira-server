@@ -1,5 +1,5 @@
 const TicketComments = require('../models/TicketComments'); 
-
+const Users = require('../models/User');
 // Create a new ticket comment
 exports.createTicketComment = async (req, res) => {
     try {
@@ -53,7 +53,9 @@ exports.deleteTicketComment = async (req, res) => {
             where: { id }
         });
         if (deleted) {
-            res.status(204).send(); // No content
+            res.status(200).send({message:'Successfully deleted comment with the id=${id}',
+                id: id
+            });
         } else {
             res.status(404).json({ error: 'Comment not found.' });
         }
@@ -68,8 +70,8 @@ exports.getCommentsByTicketId = async (req, res) => {
         const { ticket_id } = req.params;
         
         // Extract page and pageSize from query parameters
-        const page = parseInt(req.query.page, 10) || 1;  // Default to page 1 if not provided
-        const pageSize = parseInt(req.query.pageSize, 10) || 10;  // Default to pageSize 10 if not provided
+        const page = parseInt(req.query.page, 10) || 1;  
+        const pageSize = parseInt(req.query.pageSize, 10) || 10;  
 
         // Validate that page and pageSize are positive integers
         if (page <= 0 || pageSize <= 0) {
@@ -86,19 +88,26 @@ exports.getCommentsByTicketId = async (req, res) => {
             offset: offset
         });
 
-        // Get total count of comments for the ticket
         const totalComments = await TicketComments.count({ where: { ticket_id } });
+        
+        const formattedComments = await Promise.all(comments.map(async comment => {
+            const commentJson = comment.toJSON();
+            const user = await Users.findOne({ where: { id: comment.user_id }, attributes:['id','guid','first_name','last_name','color'] });
+            commentJson.user = user ? user.toJSON() : null;
+            return commentJson;
+        }));
+
 
         // Respond with paginated results
         res.json({
-            comments,
+            comments: formattedComments,
             totalComments,
             page,
             pageSize,
             totalPages: Math.ceil(totalComments / pageSize)
         });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching comments for the ticket.' });
+        res.status(500).json({ error: 'An error occurred while fetching comments for the ticket.', details: error.message });
     }
 };
 

@@ -6,8 +6,6 @@ const Projects = require('../models/Projects')
 const { Op } = require('sequelize');
 
 // Create a new ticket
-
-// Create a new ticket
 exports.createTicket = async (req, res) => {
     try {
         const { title, description, resolution, reporter_user_id, assignee_user_id, project_guid, project_prefix, parent_id, ticket_id } = req.body;
@@ -48,29 +46,28 @@ exports.getTicketById = async (req, res) => {
     try {
         const { guid } = req.params;
         
-        // Fetch the ticket by GUID
         const ticket = await Tickets.findOne({ where: { guid } });
-        
+        const type = await Types.findOne({where:{ id: ticket.type_id}});
+
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found.' });
         }
 
         const ticketJson = ticket.toJSON(); 
-
-        // Fetch user details using reporter_user_id if it exists
+        ticketJson.type = type ? type.toJSON() : null;
+        
         if (ticketJson.reporter_user_id) {
             const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
                 attributes: ['id', 'first_name', 'last_name', 'email', 'color'] 
             });
-            ticketJson.reporter = reporter ? reporter.toJSON() : null; // Add reporter details
+            ticketJson.reporter = reporter ? reporter.toJSON() : null; 
         } else {
-            ticketJson.reporter = null; // No reporter if reporter_user_id is null
+            ticketJson.reporter = null; 
         }
 
-        // Return the ticket with reporter details
         res.json(ticketJson);
     } catch (error) {
-        console.error('Error fetching ticket:', error); // Log the error for debugging
+        console.error('Error fetching ticket:', error); 
         res.status(500).json({ error: 'An error occurred while fetching the ticket.', detail: error.message || 'No error message available' });
 
     }
