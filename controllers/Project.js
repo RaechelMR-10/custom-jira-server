@@ -13,20 +13,17 @@ exports.createProject = async (req, res) => {
         // Create the new project
         const newProject = await Projects.create({ name, description, organization_id ,prefix});
         
-        // Create a new ProjectMember with the 'manager' role
         await ProjectMember.create({
             user_id: user_id,
             project_id: newProject.id, 
             role: 'manager' 
         });
 
-        // Create statuses TODO and DONE
         await Status.bulkCreate([
             { name: 'TODO', project_guid: newProject.guid , isDefault: true},
             { name: 'DONE', project_guid: newProject.guid , isDefault: false}
         ]);
 
-        // Create a type DEFAULT with the icon t1
         await Types.create({
             name: 'DRAFT',
             icon: 't5',
@@ -161,13 +158,13 @@ exports.getProjectById = async (req, res) => {
 // Update a project by ID
 exports.updateProject = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, description } = req.body;
-        const [updated] = await Projects.update({ name, description }, {
-            where: { id }
+        const { guid } = req.params;
+        const { name, description, prefix } = req.body;
+        const [updated] = await Projects.update({ name, description, prefix }, {
+            where: { guid }
         });
         if (updated) {
-            const updatedProject = await Projects.findByPk(id);
+            const updatedProject = await Projects.findOne({where:{guid}})
             res.json(updatedProject);
         } else {
             res.status(404).json({ error: 'Project not found.' });

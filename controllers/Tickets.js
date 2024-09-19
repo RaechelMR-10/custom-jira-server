@@ -48,14 +48,15 @@ exports.getTicketById = async (req, res) => {
         
         const ticket = await Tickets.findOne({ where: { guid } });
         const type = await Types.findOne({where:{ id: ticket.type_id}});
-
+        const project = await Projects.findOne({where:{ guid: ticket.project_guid}})
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found.' });
         }
 
         const ticketJson = ticket.toJSON(); 
         ticketJson.type = type ? type.toJSON() : null;
-        
+        ticketJson.project = project ? project.toJSON() : null;
+
         if (ticketJson.reporter_user_id) {
             const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
                 attributes: ['id', 'first_name', 'last_name', 'email', 'color'] 
@@ -316,7 +317,9 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             offset: (parseInt(page, 10) - 1) * parseInt(limit, 10),
             order: [orderBy]
         });
-
+        const overallTotal = await Tickets.count({
+            where: { project_guid }
+        });
         const ticketsWithDetails = await Promise.all(tickets.rows.map(async (ticket) => {
             const ticketJson = ticket.toJSON(); 
 
@@ -334,9 +337,11 @@ exports.getTicketsByProjectGuid = async (req, res) => {
 
             return ticketJson; 
         }));
-
+        const projectDetails= await Projects.findOne({where:{ guid: project_guid}});
         res.json({
             tickets: ticketsWithDetails,
+            project_details: projectDetails,
+            overall_total: overallTotal,
             total: tickets.count,
             page: parseInt(page, 10),
             limit: parseInt(limit, 10)
