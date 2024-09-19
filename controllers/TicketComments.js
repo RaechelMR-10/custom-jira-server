@@ -1,4 +1,4 @@
-const TicketComments = require('../models/TicketComments'); // Adjust the path as necessary
+const TicketComments = require('../models/TicketComments'); 
 
 // Create a new ticket comment
 exports.createTicketComment = async (req, res) => {
