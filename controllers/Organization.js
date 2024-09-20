@@ -1,6 +1,8 @@
 const Organization = require('../models/Organization'); 
 const User = require('../models/User');
-
+require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 // Create a new organization
 exports.createOrganization = async (req, res) => {
     try {
@@ -43,7 +45,7 @@ exports.getOrganizationById = async (req, res) => {
         if (organization) {
             // Construct the URL for the image if it exists
             if (organization.image) {
-                organization.imageUrl = `${req.protocol}://${req.get('host')}/${organization.image}`;
+                organization.imageUrl = `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${organization.image.replace(/\\/g, '/')}`;
             }
             res.json(organization);
         } else {
@@ -55,23 +57,66 @@ exports.getOrganizationById = async (req, res) => {
 };
 
 
+
 // Update an organization by ID
 exports.updateOrganization = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, subscription_type, subscription_StartDate, subscription_EndDate , isActive, imageBase64} = req.body;
+        const { name, description, subscription_type, subscription_StartDate, subscription_EndDate, isActive } = req.body;
         let imagePath = null;
 
-        if (imageBase64) {
-            if (!/^data:image\/[a-zA-Z]+;base64,/.test(imageBase64)) {
+        const imageDir = 'uploads/images'; // Directory where images are stored
+        const existingImagePattern = new RegExp(`^${id}.*\\.(png|jpg|jpeg|gif)$`); // Adjust extensions as needed
+
+        // Function to delete existing images
+        const deleteExistingImages = () => {
+            return new Promise((resolve, reject) => {
+                fs.readdir(imageDir, (err, files) => {
+                    if (err) return reject(err);
+
+                    const deletePromises = files
+                        .filter(file => existingImagePattern.test(file))
+                        .map(file => {
+                            return new Promise((res, rej) => {
+                                fs.unlink(path.join(imageDir, file), err => {
+                                    if (err) return rej(err);
+                                    res();
+                                });
+                            });
+                        });
+
+                    Promise.all(deletePromises)
+                        .then(resolve)
+                        .catch(reject);
+                });
+            });
+        };
+
+        // Delete existing images before processing the new upload
+        await deleteExistingImages();
+
+        // Check if imageBase64 was provided
+        if (req.body.imageBase64) {
+            if (!/^data:image\/[a-zA-Z]+;base64,/.test(req.body.imageBase64)) {
                 return res.status(400).json({ error: 'Invalid base64 image format.' });
             }
-            const imageFileName = Date.now() + '.png'; 
-            const fullImagePath = path.join('uploads/images', imageFileName);
-            base64ToImage(imageBase64, fullImagePath);
-            imagePath = fullImagePath; 
-        } else if (req.file) {
-            imagePath = req.file.path; 
+            const imageBase64 = req.body.imageBase64;
+            const base64Data = imageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+            const imageFileName = `${id}.png`; // Use the org ID as the filename
+            imagePath = path.join(imageDir, imageFileName);
+            fs.writeFileSync(imagePath, Buffer.from(base64Data, 'base64'));
+        } 
+        // If Multer uploaded a file
+        else if (req.file) {
+            const oldPath = req.file.path;
+            const newFileName = `${id}${path.extname(req.file.originalname)}`; // Use the org ID as the filename
+            imagePath = path.join(imageDir, newFileName);
+            
+            fs.rename(oldPath, imagePath, (err) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Error renaming file.' });
+                }
+            });
         }
 
         const organization = await Organization.findByPk(id);
@@ -85,8 +130,8 @@ exports.updateOrganization = async (req, res) => {
             subscription_type,
             subscription_StartDate,
             subscription_EndDate,
-            image: imagePath || organization.image,
-            isActive
+            image: `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${imagePath.replace(/\\/g, '/')}` || organization.image, 
+            isActive 
         };
 
         const [updated] = await Organization.update(updateData, {
@@ -141,7 +186,7 @@ exports.getOrganizationByUserGuid= async(req, res)=>{
         const organization = await Organization.findOne({ where:{ id: user.organization_id}});
         if (organization) {
             if (organization.image) {
-                organization.imageUrl = `${req.protocol}://${req.get('host')}/${organization.image}`;
+                organization.imageUrl = `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${organization.image.replace(/\\/g, '/')}`;
             }
             res.json(organization);
         } else {

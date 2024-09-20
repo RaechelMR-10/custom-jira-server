@@ -70,6 +70,22 @@ const Tickets = sequelize.define('Tickets',{
     ticket_id:{ //prefix
         type: DataTypes.STRING, 
         allowNull: true
+    },
+    severity_id:{
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references:{
+            model: 'Severity',
+            key: 'id'
+        }
+    },
+    priority:{
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references:{
+            model: 'PriorityLevel',
+            key: 'id'
+        }
     }
 },{
     tableName: 'Tickets'

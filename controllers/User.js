@@ -139,7 +139,7 @@ const deleteUser = async (req, res) => {
         );
 
         if (updated[0]) { 
-            res.status(200).json({ message: 'User deactivated successfully.' });
+            res.status(200).json({ message: 'User deactivated successfully.', guid: guid });
         } else {
             res.status(404).json({ error: 'User not found.' });
         }

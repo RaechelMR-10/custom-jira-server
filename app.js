@@ -28,7 +28,7 @@ const typesRouter = require('./routes/types');
 const ticketCommentsRouter = require('./routes/ticketcomments'); 
 const ticketsRouter = require('./routes/tickets'); 
 const ticketHistoryRouter = require('./routes/tickethistory')
-
+const bodyParser = require('body-parser');
 const { checkToken } = require('./controllers/Account');
 const app = express();
 const port = 3001
@@ -48,7 +48,9 @@ app.use(session({
   
   // Add middleware to parse JSON bodies
 app.use(express.json());
-  
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
 const logRequest = (req, res, next) => {
     console.log(`Received request: ${req.method} ${req.url}`);
     next();

@@ -27,6 +27,8 @@ Tickets.belongsTo(Users, { as: 'assignee', foreignKey: 'assignee_user_id', onDel
 Tickets.belongsTo(Types, { as: 'type_details', foreignKey: 'type_id', onDelete: 'NO ACTION' });
 
 
+
+
 Users.hasMany(Tickets, { as: 'reportedTickets', foreignKey: 'reporter_user_id' , onDelete: 'NO ACTION'});
 Users.hasMany(Tickets, { as: 'assignedTickets', foreignKey: 'assignee_user_id' , onDelete: 'NO ACTION'});
 
