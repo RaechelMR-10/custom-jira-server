@@ -4,6 +4,7 @@ const Types = require('../models/Types')
 const Status = require('../models/Status')
 const Projects = require('../models/Projects')
 const { Op } = require('sequelize');
+const { ProjectMember } = require('../models')
 
 // Create a new ticket
 exports.createTicket = async (req, res) => {
@@ -338,9 +339,11 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             return ticketJson; 
         }));
         const projectDetails= await Projects.findOne({where:{ guid: project_guid}});
+        const projectMemberDetails= await ProjectMember.findAll({where: {project_id: projectDetails.id}});
         res.json({
             tickets: ticketsWithDetails,
             project_details: projectDetails,
+            member_details: projectMemberDetails,
             overall_total: overallTotal,
             total: tickets.count,
             page: parseInt(page, 10),

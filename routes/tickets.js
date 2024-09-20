@@ -22,10 +22,10 @@ router.get('/list/:project_guid', ticketsController.getTicketsByProjectGuid)
 
 
 // Get all tickets by status ID
-router.get('/fetchAllByStatus/:status_id', ticketsController.getTicketsByStatusId);
+//router.get('/fetchAllByStatus/:status_id', ticketsController.getTicketsByStatusId);
 
 // Get all tickets by type ID
-router.get('/fetchAllByType/:type_id', ticketsController.getTicketsByTypeId);
+//router.get('/fetchAllByType/:type_id', ticketsController.getTicketsByTypeId);
 
 // Get all tickets reported by a specific user
 router.get('/reporter/:reporter_user_id', ticketsController.getTicketsByReporterUserId);

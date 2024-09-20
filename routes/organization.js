@@ -16,6 +16,6 @@ router.put('/update/:id', organizationController.updateOrganization);
 router.delete('/delete/:id', organizationController.deleteOrganization);
 
 // Get all organizations
-router.get('/list', organizationController.getAllOrganizations);
+//router.get('/list', organizationController.getAllOrganizations);
 
 module.exports = router;

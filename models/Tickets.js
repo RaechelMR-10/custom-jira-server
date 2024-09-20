@@ -16,7 +16,7 @@ const Tickets = sequelize.define('Tickets',{
         allowNull: true
     },
     description:{
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true
     },
     status_id:{
