@@ -9,6 +9,8 @@ const TicketComments = require('./TicketComments');
 const TicketHistory = require('./TicketHistory'); 
 const Tickets = require('./Tickets'); 
 const Types = require('./Types'); 
+const PriorityLevel = require('./PriorityLevel');
+const Severity = require('./Severity');
 
 Projects.hasMany(ProjectMember, {
     foreignKey: 'project_id',
