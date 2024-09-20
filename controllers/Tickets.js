@@ -289,19 +289,27 @@ exports.getTicketsByProjectGuid = async (req, res) => {
         // Handle assignee filtering
         if (assignee) {
             const assigneeNames = assignee.split(',');
-            const assignees = await Promise.all(assigneeNames.map(async (fullName) => {
-                const [first_name, last_name] = fullName.trim().split(' ');
-                return Users.findAll({
-                    where: {
-                        first_name: first_name || '',
-                        last_name: last_name || ''
-                    }
-                });
-            }));
-            const assigneeIds = assignees.flat().map(user => user.id);
-            whereClause.assignee_user_id = { [Op.in]: assigneeIds };
+            const assigneeIds = [];
+        
+            for (const name of assigneeNames) {
+                if (name.trim().toUpperCase() === 'UNASSIGNED') {
+                    whereClause.assignee_user_id = { [Op.or]: [{ [Op.is]: null }] };
+                } else {
+                    const [first_name, last_name] = name.trim().split(' ');
+                    const assignees = await Users.findAll({
+                        where: {
+                            first_name: first_name || '',
+                            last_name: last_name || ''
+                        }
+                    });
+                    assigneeIds.push(...assignees.map(user => user.id));
+                }
+            }
+        
+            if (assigneeIds.length > 0) {
+                whereClause.assignee_user_id = { [Op.or]: [{ [Op.is]: null }, { [Op.in]: assigneeIds }] };
+            }
         }
-
         
 
         // Validate sortBy and sortOrder
