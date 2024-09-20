@@ -130,8 +130,11 @@ const deleteUser = async (req, res) => {
     try {
         const { guid } = req.params;
 
+        const newUsername = `inactive_${Date.now()}`; 
+        const newEmail = `inactive_${Date.now()}@example.com`; 
+
         const updated = await Users.update(
-            { isActive: false }, 
+            { isActive: false, username: newUsername, email: newEmail }, 
             { where: { guid } }
         );
 

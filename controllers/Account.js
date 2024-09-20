@@ -12,7 +12,7 @@ const signup = async (req, res) => {
 
         let orgId = organization_id;
         let roles = 'member';
-        // Create a new organization only if organization_id is not provided
+        
         if (!organization_id) {
             const newOrganization = await Organization.create({
                 name: 'Temporary Name',
@@ -51,7 +51,6 @@ const signup = async (req, res) => {
     }
 };
 
-
 const auth = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -61,6 +60,12 @@ const auth = async (req, res) => {
         if (!user) {
             console.log('User not found');
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        // Check if the account is inactive
+        if (!user.isActive) {
+            console.log('Account is inactive');
+            return res.status(403).json({ error: 'Account is inactive' });
         }
 
         // Compare passwords

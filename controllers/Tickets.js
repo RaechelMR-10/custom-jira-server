@@ -340,10 +340,26 @@ exports.getTicketsByProjectGuid = async (req, res) => {
         }));
         const projectDetails= await Projects.findOne({where:{ guid: project_guid}});
         const projectMemberDetails= await ProjectMember.findAll({where: {project_id: projectDetails.id}});
+        const userMemberInfo = await Promise.all(projectMemberDetails.map(async (mem)=>{
+            const memberJson = mem.toJSON();
+            if(mem.user_id){
+                const user_details = await Users.findByPk(memberJson.user_id, {
+                    attributes: ['id', 'first_name', 'last_name', 'email']
+                });
+                memberJson.user_details = user_details ? user_details.toJSON() : null; 
+            }else {
+                memberJson.user_details = null; 
+            }
+            return memberJson;
+        }))
+        const statuses = await Status.findAll({where:{ project_guid}});
+        const types = await Types.findAll({where:{ project_guid}});
         res.json({
             tickets: ticketsWithDetails,
             project_details: projectDetails,
-            member_details: projectMemberDetails,
+            statuses,
+            types,
+            member_details: userMemberInfo,
             overall_total: overallTotal,
             total: tickets.count,
             page: parseInt(page, 10),
