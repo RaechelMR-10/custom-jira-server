@@ -1,5 +1,6 @@
 const { Tickets } = require('../models');
 const TicketHistory = require('../models/TicketHistory'); 
+const User = require('../models/User');
 
 // Create a new ticket history entry
 exports.createTicketHistory = async (req, res) => {
@@ -71,7 +72,18 @@ exports.getHistoryByTicketId = async (req, res) => {
         const historyEntries = await TicketHistory.findAll({
             where: { ticket_id: ticket.id }
         });
-        res.json(historyEntries);
+        const historyWithUser = await Promise.all(historyEntries.map(async (ht) => {
+            const historyJson = ht.toJSON();
+            const user_detail = await User.findOne({where:{id:ht.user_id}, attributes:['first_name', 'last_name', 'color']});
+            historyJson.user_detail = user_detail ? user_detail.toJSON() : null;
+            if(ht.target_user_id){
+                const target_user_detail = await User.findOne({where:{id:ht.target_user_id}, attributes:['first_name', 'last_name', 'color']});
+                historyJson.target_user_detail = target_user_detail ? target_user_detail.toJSON() : null;
+            }
+            return historyJson;
+        }));
+
+        res.json(historyWithUser);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the ticket history entries.', details: error.message });
     }
