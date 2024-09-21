@@ -1,13 +1,14 @@
+const { Tickets } = require('../models');
 const TicketHistory = require('../models/TicketHistory'); 
 
 // Create a new ticket history entry
 exports.createTicketHistory = async (req, res) => {
     try {
-        const { description, user_id, ticket_id } = req.body;
-        const newHistory = await TicketHistory.create({ description, user_id, ticket_id });
+        const { description, user_id, ticket_id, history_type, target_user_id} = req.body;
+        const newHistory = await TicketHistory.create({ description, user_id, ticket_id, history_type, target_user_id });
         res.status(201).json(newHistory);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while creating the ticket history entry.' });
+        res.status(500).json({ error: 'An error occurred while creating the ticket history entry.', details: error.message });
     }
 };
 
@@ -65,13 +66,14 @@ exports.deleteTicketHistory = async (req, res) => {
 // Get all history entries for a specific ticket
 exports.getHistoryByTicketId = async (req, res) => {
     try {
-        const { ticket_id } = req.params;
+        const { ticket_guid } = req.params;
+        const ticket = await Tickets.findOne({ where: {guid: ticket_guid}});
         const historyEntries = await TicketHistory.findAll({
-            where: { ticket_id }
+            where: { ticket_id: ticket.id }
         });
         res.json(historyEntries);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching the ticket history entries.' });
+        res.status(500).json({ error: 'An error occurred while fetching the ticket history entries.', details: error.message });
     }
 };
 

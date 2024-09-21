@@ -7,6 +7,6 @@ router.post('/history/add', ticketHistoryController.createTicketHistory);
 
 
 // Get all history entries for a specific ticket
-router.get('/history/:ticket_id', ticketHistoryController.getHistoryByTicketId);
+router.get('/history/:ticket_guid', ticketHistoryController.getHistoryByTicketId);
 
 module.exports = router;

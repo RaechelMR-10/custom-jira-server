@@ -2,7 +2,7 @@ const {DataTypes} = require('sequelize');
 const sequelize = require('../config/database');
 
 
-const TicketHistory = sequelize.define('TicketHistory',{
+const AuditTrails = sequelize.define('AuditTrails',{
     id:{
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -12,9 +12,13 @@ const TicketHistory = sequelize.define('TicketHistory',{
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
     },
+    action_made:{
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     description:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     user_id:{
         type: DataTypes.INTEGER,
@@ -24,24 +28,20 @@ const TicketHistory = sequelize.define('TicketHistory',{
             key: 'id'
         }
     },
-    ticket_id:{
+    ip_address:{
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    organization_id:{
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Tickets',
-            key:'id'
+            model: 'Organizations',
+            key: 'id'
         }
-    },
-    history_type:{
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    target_user_id:{
-        type: DataTypes.INTEGER,
-        allowNull: true,
     }
 },{
-    tableName: 'TicketHistory'
+    tableName: 'AuditTrails'
 })
 
-module.exports = TicketHistory;
+module.exports = AuditTrails;

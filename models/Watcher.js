@@ -2,7 +2,7 @@ const {DataTypes} = require('sequelize');
 const sequelize = require('../config/database');
 
 
-const TicketHistory = sequelize.define('TicketHistory',{
+const Watcher = sequelize.define('Watcher',{
     id:{
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -14,7 +14,7 @@ const TicketHistory = sequelize.define('TicketHistory',{
     },
     description:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     user_id:{
         type: DataTypes.INTEGER,
@@ -31,17 +31,9 @@ const TicketHistory = sequelize.define('TicketHistory',{
             model: 'Tickets',
             key:'id'
         }
-    },
-    history_type:{
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    target_user_id:{
-        type: DataTypes.INTEGER,
-        allowNull: true,
     }
 },{
-    tableName: 'TicketHistory'
+    tableName: 'Watcher'
 })
 
-module.exports = TicketHistory;
+module.exports = Watcher;
