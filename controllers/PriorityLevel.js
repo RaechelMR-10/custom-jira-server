@@ -44,6 +44,12 @@ exports.updatePriorityLevel = async (req, res) => {
         const { isDefault } = req.body;
         const priorityLevel = await PriorityLevel.findOne({where:{ project_guid: guid, id}});
 
+        if (isDefault) {
+            await PriorityLevel.update({ isDefault: false }, {
+                where: { project_guid: guid }
+            });
+        }
+
         if (priorityLevel) {
             priorityLevel.isDefault = isDefault;
 

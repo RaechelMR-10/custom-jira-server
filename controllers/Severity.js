@@ -55,6 +55,11 @@ exports.updateSeverity = async (req, res) => {
         const { isDefault } = req.body;
         const severity = await Severity.findOne({where:{ project_guid: guid, id}});
 
+        if (isDefault) {
+            await Severity.update({ isDefault: false }, {
+                where: { project_guid: guid }
+            });
+        }
         if (severity) {
             severity.isDefault = isDefault;
 
