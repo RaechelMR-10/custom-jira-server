@@ -1,3 +1,4 @@
+const { Tickets } = require('../models');
 const PriorityLevel = require('../models/PriorityLevel');
 
 // Create a new PriorityLevel
@@ -68,9 +69,18 @@ exports.deletePriorityLevel = async (req, res) => {
     try {
         const { id } = req.params;
         const priorityLevel = await PriorityLevel.findByPk(id);
+        const ticket = await Tickets.findAll({where:{ severity_id : id}});
+
+        if(ticket){
+            const defaultSeverity = await PriorityLevel.findOne({where:{ project_guid: ticket.project_guid, isDefault: true}});
+            const defaultStatusId= defaultSeverity.id;
+            await Tickets.update({severity_id: defaultStatusId},{
+                where:{severity_id: id}
+            })
+        }
         if (priorityLevel) {
             await priorityLevel.destroy();
-            res.status(200).json({ message: 'PriorityLevel deleted successfully' });
+            res.status(200).json({ message: 'PriorityLevel deleted successfully', id: id });
         } else {
             res.status(404).json({ message: 'PriorityLevel not found' });
         }

@@ -85,7 +85,7 @@ exports.getTicketById = async (req, res) => {
 exports.updateTicket = async (req, res) => {
     try {
         const { guid } = req.params;
-        const { title, description, status_id, resolution, type_id, assignee_user_id } = req.body;
+        const { title, description, status_id, resolution, type_id, assignee_user_id, severity_id, priority_id } = req.body;
 
         // Find the ticket by GUID
         const ticket = await Tickets.findOne({ where: { guid } });
@@ -101,6 +101,8 @@ exports.updateTicket = async (req, res) => {
             status_id,
             resolution,
             type_id,
+            severity_id, 
+            priority_id,
             assignee_user_id
         });
 

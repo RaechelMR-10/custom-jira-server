@@ -1,3 +1,4 @@
+const { Tickets } = require('../models');
 const Severity= require('../models/Severity');
 
 exports.createSeverity = async (req, res) => {
@@ -37,9 +38,18 @@ exports.deleteSeverity = async (req, res) => {
     try {
         const { id } = req.params;
         const severity = await Severity.findByPk(id);
+        const ticket = await Tickets.findAll({where:{ severity_id : id}});
+
+        if(ticket){
+            const defaultSeverity = await Severity.findOne({where:{ project_guid: ticket.project_guid, isDefault: true}});
+            const defaultStatusId= defaultSeverity.id;
+            await Tickets.update({severity_id: defaultStatusId},{
+                where:{severity_id: id}
+            })
+        }
         if (severity) {
             await severity.destroy();
-            res.status(200).json({ message: 'Severity deleted successfully' });
+            res.status(200).json({ message: 'Severity deleted successfully', id: id });
         } else {
             res.status(404).json({ message: 'Severity not found' });
         }
