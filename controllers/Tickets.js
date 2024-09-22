@@ -54,15 +54,23 @@ exports.getTicketById = async (req, res) => {
         const { guid } = req.params;
         
         const ticket = await Tickets.findOne({ where: { guid } });
+        const childTicket = await Tickets.findAll({where: { parent_id: ticket.id}});
         const type = await Types.findOne({where:{ id: ticket.type_id}});
         const project = await Projects.findOne({where:{ guid: ticket.project_guid}})
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found.' });
         }
-
+        const childTicketsWithTypes = await Promise.all(childTicket.map(async (child) => {
+            const childType = await Types.findOne({ where: { id: child.type_id } });
+            return {
+                ...child.toJSON(),
+                type: childType ? childType.toJSON() : null,
+            };
+        }));
         const ticketJson = ticket.toJSON(); 
         ticketJson.type = type ? type.toJSON() : null;
         ticketJson.project = project ? project.toJSON() : null;
+        ticketJson.child_tickets =  childTicketsWithTypes;
 
         if (ticketJson.reporter_user_id) {
             const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
