@@ -79,7 +79,7 @@ const Tickets = sequelize.define('Tickets',{
             key: 'id'
         }
     },
-    priority:{
+    priority_id:{
         type: DataTypes.INTEGER,
         allowNull: true,
         references:{

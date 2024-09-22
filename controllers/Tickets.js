@@ -5,6 +5,8 @@ const Status = require('../models/Status')
 const Projects = require('../models/Projects')
 const { Op } = require('sequelize');
 const { ProjectMember } = require('../models')
+const PriorityLevel = require('../models/PriorityLevel')
+const Severity = require('../models/Severity')
 
 // Create a new ticket
 exports.createTicket = async (req, res) => {
@@ -12,9 +14,11 @@ exports.createTicket = async (req, res) => {
         const { title, description, resolution, reporter_user_id, assignee_user_id, project_guid, project_prefix, parent_id, ticket_id } = req.body;
         const  statId = await Status.findOne({ where:{project_guid, isDefault: true}});
         const  typeId = await Types.findOne({ where:{project_guid, isDefault: true}});
+        const prioId= await PriorityLevel.findOne({ where: {project_guid, isDefault: true}});
+        const severeId= await Severity.findOne({ where: {project_guid, isDefault: true}});
 
-        if (!statId || !typeId) {
-            return res.status(400).json({ message: 'Default status or type not found.' });
+        if (!statId || !typeId || !prioId || !severeId) {
+            return res.status(400).json({ message: 'Default status , type, priority or severity not found.' });
         }
         // Create ticket
         const newTicket = await Tickets.create({
@@ -27,7 +31,9 @@ exports.createTicket = async (req, res) => {
             assignee_user_id,
             project_guid,
             parent_id,
-            ticket_id
+            ticket_id,
+            priority_id: prioId.id,
+            severity_id: severeId.id
         });
 
         res.status(201).json({
