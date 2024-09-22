@@ -4,6 +4,8 @@ const Status = require('../models/Status');
 const Types = require('../models/Types');
 const ProjectMember = require('../models/ProjectMember');
 const User = require('../models/User')
+const PriorityLevel = require('../models/PriorityLevel')
+const Severity = require('../models/Severity');
 const {hideSensitiveData} = require('../controllers/User');
 const { project } = require('../routes');
 exports.createProject = async (req, res) => {
@@ -30,6 +32,17 @@ exports.createProject = async (req, res) => {
             project_guid: newProject.guid,
             isDefault: true
         });
+
+        await Severity.bulkCreate([
+            { name: 'HIGH', project_guid: newProject.guid , isDefault: true},
+            { name: 'LOW', project_guid: newProject.guid , isDefault: false}
+        ]);
+
+        await PriorityLevel.bulkCreate([
+            { name: 'HIGH', project_guid: newProject.guid , isDefault: true},
+            { name: 'LOW', project_guid: newProject.guid , isDefault: false}
+        ]);
+
         res.status(201).json(newProject);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the project.', details: error.message });

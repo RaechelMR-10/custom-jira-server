@@ -30,6 +30,8 @@ const typesRouter = require('./routes/types');
 const ticketCommentsRouter = require('./routes/ticketcomments'); 
 const ticketsRouter = require('./routes/tickets'); 
 const ticketHistoryRouter = require('./routes/tickethistory')
+const severityRouter = require('./routes/severity');
+const priorityLevelRouter = require('./routes/priorityLevel')
 const bodyParser = require('body-parser');
 const { checkToken } = require('./controllers/Account');
 const app = express();
@@ -66,7 +68,7 @@ app.use('/user', logRequest, userRouter);
 app.use('/account',logRequest, authRouter);
 app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter);
 app.use('/organization', logRequest, organizationRouter);
-app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
+app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter, severityRouter, priorityLevelRouter);
 app.use('/project-member', logRequest, projectmemberRouter);
   
  
