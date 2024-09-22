@@ -14,7 +14,8 @@ exports.createPriorityLevel = async (req, res) => {
 // Get all PriorityLevels
 exports.getPriorityLevels = async (req, res) => {
     try {
-        const priorityLevels = await PriorityLevel.findAll();
+        const {guid} = req.params;
+        const priorityLevels = await PriorityLevel.findAll({ where: {project_guid: guid}});
         res.status(200).json(priorityLevels);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -39,14 +40,11 @@ exports.getPriorityLevelById = async (req, res) => {
 // Update a PriorityLevel
 exports.updatePriorityLevel = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, color, project_guid, isDefault } = req.body;
-        const priorityLevel = await PriorityLevel.findByPk(id);
+        const { guid, id } = req.params;
+        const { isDefault } = req.body;
+        const priorityLevel = await PriorityLevel.findOne({where:{ project_guid: guid, id}});
 
         if (priorityLevel) {
-            priorityLevel.name = name;
-            priorityLevel.color = color;
-            priorityLevel.project_guid = project_guid;
             priorityLevel.isDefault = isDefault;
 
             await priorityLevel.save();

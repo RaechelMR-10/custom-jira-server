@@ -153,14 +153,17 @@ exports.getProjectById = async (req, res) => {
             };
         });
 
-        const types = await Types.findAll({ where: { project_guid: guid } });
-        const statuses = await Status.findAll({ where: { project_guid: guid } });
-
+        const types = await Types.findAll({ where: { project_guid: guid }});
+        const statuses = await Status.findAll({ where: { project_guid: guid }});
+        const severity = await Severity.findAll({ where:{ project_guid: guid}})
+        const priority = await PriorityLevel.findAll({ where:{ project_guid: guid}})
         res.json({
             project,
             projectMembers: allProjectMembers,
             types,
-            statuses
+            statuses,
+            severity,
+            priority
         });
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the project and tickets.', details: error.message });

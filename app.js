@@ -66,9 +66,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/', router);
 app.use('/user', logRequest, userRouter);
 app.use('/account',logRequest, authRouter);
-app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter);
+app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter);
 app.use('/organization', logRequest, organizationRouter);
-app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter, severityRouter, priorityLevelRouter);
+app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 app.use('/project-member', logRequest, projectmemberRouter);
   
  
