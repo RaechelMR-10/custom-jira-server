@@ -8,6 +8,7 @@ const PriorityLevel = require('../models/PriorityLevel')
 const Severity = require('../models/Severity');
 const {hideSensitiveData} = require('../controllers/User');
 const { project } = require('../routes');
+const { TicketHistory } = require('../models');
 exports.createProject = async (req, res) => {
     try {
         const { name, description, organization_id, user_id , prefix} = req.body;
@@ -283,32 +284,61 @@ exports.deleteProject = async (req, res) => {
 
     try {
         // Find the project
-        const project = await Projects.findOne({where: {guid}});
+        const project = await Projects.findOne({ where: { guid } });
+        const tickets= await Tickets.findAll({ where: {project_guid: guid}});
+        const ticketIds = tickets.map(ticket => ticket.id);
 
         if (!project) {
             return res.status(404).json({ message: 'Project not found' });
         }
 
         // Delete associated ProjectMembers
-        await ProjectMember.destroy({
+        const deletedMembers = await ProjectMember.destroy({
             where: { project_id: project.id }
         });
+        console.log('Number of ProjectMembers deleted:', deletedMembers);
 
         
-        await Tickets.destroy({
-            where: { project_guid: project.guid }
+        // Delete ticket history for each ticket
+        const deletedTicketsHistory = await TicketHistory.destroy({
+            where: { ticket_id: ticketIds }
         });
+        console.log('Number of ticket histories deleted:', deletedTicketsHistory);
 
-        await Status.destroy({
-            where: { project_guid: project.guid }
+        // Delete associated Tickets
+        const deletedTickets = await Tickets.destroy({
+            where: { project_guid: guid }
         });
+        console.log('Number of tickets deleted:', deletedTickets);
 
-        await Types.destroy({
-            where: { project_guid: project.guid }
+        
+        // Delete associated Status
+        const deletedStatus = await Status.destroy({
+            where: { project_guid: guid }
         });
+        console.log('Number of Status entries deleted:', deletedStatus);
+
+        // Delete associated Types
+        const deletedTypes = await Types.destroy({
+            where: { project_guid: guid }
+        });
+        console.log('Number of Types deleted:', deletedTypes);
+
+        // Delete associated Severity
+        const deletedSeverity = await Severity.destroy({
+            where: { project_guid: guid }
+        });
+        console.log('Number of Severity entries deleted:', deletedSeverity);
+
+        // Delete associated PriorityLevel
+        const deletedPriority = await PriorityLevel.destroy({
+            where: { project_guid: guid }
+        });
+        console.log('Number of PriorityLevel entries deleted:', deletedPriority);
 
         // Delete the project
         await project.destroy();
+        console.log('Project deleted:', project.guid);
 
         res.status(200).json({ message: 'Project and associated members deleted successfully' });
     } catch (error) {

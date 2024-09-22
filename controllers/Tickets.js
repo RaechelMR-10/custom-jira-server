@@ -409,7 +409,6 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             priority: prio,
             severity: severe,
             member_details: userMemberInfo,
-            overall_total: overallTotal,
             total: tickets.count,
             page: parseInt(page, 10),
             limit: parseInt(limit, 10)
