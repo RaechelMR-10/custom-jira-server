@@ -35,12 +35,12 @@ exports.createProject = async (req, res) => {
 
         await Severity.bulkCreate([
             { name: 'HIGH', project_guid: newProject.guid , color:'#FF00001A', isDefault: true},
-            { name: 'LOW', project_guid: newProject.guid , color:'00FF001A', isDefault: false}
+            { name: 'LOW', project_guid: newProject.guid , color:'#00FF001A', isDefault: false}
         ]);
 
         await PriorityLevel.bulkCreate([
             { name: 'HIGH', project_guid: newProject.guid , color:'#FF00001A', isDefault: true},
-            { name: 'LOW', project_guid: newProject.guid , color:'00FF001A', isDefault: false}
+            { name: 'LOW', project_guid: newProject.guid , color:'#00FF001A', isDefault: false}
         ]);
 
         res.status(201).json(newProject);
