@@ -60,7 +60,6 @@ exports.deleteStatus = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Check if any tickets have the status_id that is being deleted
         const ticket = await Tickets.findOne({ where: { status_id: id } });
 
         if (ticket) {

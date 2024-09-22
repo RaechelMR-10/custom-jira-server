@@ -85,7 +85,7 @@ exports.getTicketById = async (req, res) => {
 exports.updateTicket = async (req, res) => {
     try {
         const { guid } = req.params;
-        const { title, description, status_id, resolution, type_id, assignee_user_id, severity_id, priority_id } = req.body;
+        const { title, description, status_id, resolution, type_id, assignee_user_id, severity_id, priority_id, parent_id } = req.body;
 
         // Find the ticket by GUID
         const ticket = await Tickets.findOne({ where: { guid } });
@@ -103,7 +103,8 @@ exports.updateTicket = async (req, res) => {
             type_id,
             severity_id, 
             priority_id,
-            assignee_user_id
+            assignee_user_id,
+            parent_id
         });
 
         return res.status(200).json({ message: 'Ticket updated successfully', ticket });
@@ -243,10 +244,9 @@ exports.getTicketsByAssigneeUserId = async (req, res) => {
 
 exports.getTicketsByProjectGuid = async (req, res) => {
     const { project_guid } = req.params;
-    const { page, limit, keyword, sortBy, sortOrder, type, status, reporter, assignee } = req.query;
+    const { page, limit, keyword, sortBy, sortOrder, type, status, reporter, assignee, priority, severity } = req.query;
 
     try {
-        // Initialize whereClause with project_guid
         const whereClause = { project_guid };
 
         // Add keyword filter if provided
@@ -254,7 +254,6 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             whereClause.title = { [Op.like]: `%${keyword}%` }; 
         }
 
-        // Convert type and status names to IDs
         if (type) {
             const typeNames = type.split(',');
             const types = await Types.findAll({
@@ -266,7 +265,6 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             whereClause.type_id = { [Op.in]: typeIds };
         }
 
-        // Handle status filtering
         if (status) {
             const statusNames = status.split(',');
             const statuses = await Status.findAll({
@@ -278,7 +276,28 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             whereClause.status_id = { [Op.in]: statusIds };
         }
 
-        // Handle reporter filtering
+        if(severity){
+            const severityNames = severity.split(',');
+            const severities = await Severity.findAll({
+                where:{
+                    name: {[Op.in]: severityNames}
+                }
+            });
+            const severityId = severities.map(s=> s.id);
+            whereClause.severity_id = { [Op.in]: severityId};
+        }
+
+        if(priority){
+            const priorityNames = priority.split(',');
+            const priorities = await PriorityLevel.findAll({
+                where:{
+                    name: {[Op.in]: priorityNames}
+                }
+            });
+            const priorityId = priorities.map(s=> s.id);
+            whereClause.priority_id = { [Op.in]: priorityId};
+        }
+
         if (reporter) {
             const reporterNames = reporter.split(',');
             const reporters = await Promise.all(reporterNames.map(async (fullName) => {
@@ -294,14 +313,14 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             whereClause.reporter_user_id = { [Op.in]: reporterIds };
         }
 
-        // Handle assignee filtering
         if (assignee) {
             const assigneeNames = assignee.split(',');
             const assigneeIds = [];
+            let unassignedIncluded = false;
         
             for (const name of assigneeNames) {
                 if (name.trim().toUpperCase() === 'UNASSIGNED') {
-                    whereClause.assignee_user_id = { [Op.or]: [{ [Op.is]: null }] };
+                    unassignedIncluded = true; // Flag that "UNASSIGNED" is included
                 } else {
                     const [first_name, last_name] = name.trim().split(' ');
                     const assignees = await Users.findAll({
@@ -314,10 +333,20 @@ exports.getTicketsByProjectGuid = async (req, res) => {
                 }
             }
         
-            if (assigneeIds.length > 0) {
-                whereClause.assignee_user_id = { [Op.or]: [{ [Op.is]: null }, { [Op.in]: assigneeIds }] };
+            // If there are valid assigneeIds or "UNASSIGNED" is included, apply the filter
+            if (assigneeIds.length > 0 || unassignedIncluded) {
+                whereClause.assignee_user_id = {
+                    [Op.or]: [
+                        ...(unassignedIncluded ? [{ [Op.is]: null }] : []), // Add NULL check only if "UNASSIGNED" is included
+                        ...(assigneeIds.length > 0 ? [{ [Op.in]: assigneeIds }] : [])
+                    ]
+                };
+            } else {
+                // Only if no valid assignees or "UNASSIGNED" is provided, leave out the condition entirely
+                delete whereClause.assignee_user_id;
             }
         }
+        
         
 
         // Validate sortBy and sortOrder
@@ -370,11 +399,15 @@ exports.getTicketsByProjectGuid = async (req, res) => {
         }))
         const statuses = await Status.findAll({where:{ project_guid}});
         const types = await Types.findAll({where:{ project_guid}});
+        const prio = await PriorityLevel.findAll({where:{ project_guid}});
+        const severe = await Severity.findAll({ where: { project_guid}});
         res.json({
             tickets: ticketsWithDetails,
             project_details: projectDetails,
             statuses,
             types,
+            priority: prio,
+            severity: severe,
             member_details: userMemberInfo,
             overall_total: overallTotal,
             total: tickets.count,
