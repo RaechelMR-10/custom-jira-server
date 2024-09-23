@@ -1,3 +1,4 @@
+const { Tickets, Projects, Types } = require('../models');
 const Sprint = require('../models/Sprint');
 
 // Create a new sprint
@@ -91,3 +92,29 @@ exports.getAllSprints = async (req, res) => {
 };
 
 
+exports.fetchAllTicketBySprintGuid = async(req, res)=>{
+    try{
+        const {sprint_guid}= req.params;
+        const sprint = await Sprint.findOne({where:{guid: sprint_guid}});
+        const tickets = await Tickets.findAll({ where:{ sprint_id: sprint.id}});
+        const ticketwithType = await Promise.all(tickets.map(async(tick)=>{
+            const tickJson= tick.toJSON();
+            const type = await Types.findOne({ where:{ id: tickJson.type_id}});
+            return {
+                ...tickJson,
+                type: type ? type.toJSON() : null,
+            }
+        }))
+        const project_detail= await Projects.findOne({where:{ guid: sprint.project_guid}});
+
+        res.status(200).json({
+            sprint: sprint.toJSON(),
+            tickets: ticketwithType,
+            project_detail: project_detail ? project_detail.toJSON() : null
+        });
+        
+    }
+    catch(error){
+        return res.status(500).json({ error: 'Error retrieving tickets', details: error.message });
+    }
+}

@@ -12,4 +12,6 @@ router.put('/sprint/edit/:guid', sprintController.updateSprint);
 
 router.delete('/sprint/delete/:guid', sprintController.deleteSprint);
 
+router.get('/sprint/tickets/:sprint_guid', sprintController.fetchAllTicketBySprintGuid);
+
 module.exports= router;
