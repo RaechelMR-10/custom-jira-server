@@ -43,24 +43,28 @@ exports.updatePriorityLevel = async (req, res) => {
     try {
         const { guid, id } = req.params;
         const { isDefault } = req.body;
-        const priorityLevel = await PriorityLevel.findOne({where:{ project_guid: guid, id}});
 
         if (isDefault) {
+            // Set all other priority levels to isDefault = false for the same project
             await PriorityLevel.update({ isDefault: false }, {
                 where: { project_guid: guid }
             });
         }
 
-        if (priorityLevel) {
-            priorityLevel.isDefault = isDefault;
+        // Update the specific priority level
+        const [updated] = await PriorityLevel.update({ isDefault }, {
+            where: { id, project_guid: guid }
+        });
 
-            await priorityLevel.save();
-            res.status(200).json(priorityLevel);
+        if (updated) {
+            // Retrieve the updated priority level
+            const updatedPriorityLevel = await PriorityLevel.findByPk(id);
+            res.json(updatedPriorityLevel);
         } else {
-            res.status(404).json({ message: 'PriorityLevel not found' });
+            res.status(404).json({ error: 'PriorityLevel not found.' });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'An error occurred while updating the priority level.' });
     }
 };
 

@@ -16,6 +16,10 @@ const PriorityLevel = require('./models/PriorityLevel');
 const Severity = require('./models/Severity');
 const Watcher = require('./models/Watcher');
 const AuditTrail= require('./models/AuditTrails');
+const Sprint = require('./models/Sprint');
+const Documents = require('./models/Documents');
+
+
 const tediousConnection = require('./config/tediousconn'); 
 const router = express.Router();
 const cors = require('cors');
@@ -29,9 +33,12 @@ const projectmemberRouter= require('./routes/projectmember');
 const typesRouter = require('./routes/types');
 const ticketCommentsRouter = require('./routes/ticketcomments'); 
 const ticketsRouter = require('./routes/tickets'); 
-const ticketHistoryRouter = require('./routes/tickethistory')
+const ticketHistoryRouter = require('./routes/tickethistory');
 const severityRouter = require('./routes/severity');
-const priorityLevelRouter = require('./routes/priorityLevel')
+const priorityLevelRouter = require('./routes/priorityLevel');
+const documentRouter = require('./routes/documents');
+const sprintRouter = require('./routes/sprint');
+
 const bodyParser = require('body-parser');
 const { checkToken } = require('./controllers/Account');
 const app = express();
@@ -66,7 +73,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/', router);
 app.use('/user', logRequest, userRouter);
 app.use('/account',logRequest, authRouter);
-app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter);
+app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter, documentRouter, sprintRouter);
 app.use('/organization', logRequest, organizationRouter);
 app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 app.use('/project-member', logRequest, projectmemberRouter);

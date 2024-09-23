@@ -63,22 +63,27 @@ exports.updateSeverity = async (req, res) => {
     try {
         const { guid, id } = req.params;
         const { isDefault } = req.body;
-        const severity = await Severity.findOne({where:{ project_guid: guid, id}});
 
         if (isDefault) {
+            // Set all other severities to isDefault = false for the same project
             await Severity.update({ isDefault: false }, {
                 where: { project_guid: guid }
             });
         }
-        if (severity) {
-            severity.isDefault = isDefault;
 
-            await severity.save();
-            res.status(200).json(severity);
+        // Update the specific severity
+        const [updated] = await Severity.update({ isDefault }, {
+            where: { id, project_guid: guid }
+        });
+
+        if (updated) {
+            // Retrieve the updated severity
+            const updatedSeverity = await Severity.findByPk(id);
+            res.json(updatedSeverity);
         } else {
-            res.status(404).json({ message: 'Severity not found' });
+            res.status(404).json({ error: 'Severity not found.' });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'An error occurred while updating the severity.' });
     }
 };

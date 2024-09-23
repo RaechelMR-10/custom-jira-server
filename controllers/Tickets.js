@@ -11,7 +11,7 @@ const Severity = require('../models/Severity')
 // Create a new ticket
 exports.createTicket = async (req, res) => {
     try {
-        const { title, description, resolution, reporter_user_id, assignee_user_id, project_guid, project_prefix, parent_id, ticket_id } = req.body;
+        const { title, description, resolution, reporter_user_id, assignee_user_id, project_guid, project_prefix, parent_id, ticket_id, linked_issue_id, sprint_id } = req.body;
         const  statId = await Status.findOne({ where:{project_guid, isDefault: true}});
         const  typeId = await Types.findOne({ where:{project_guid, isDefault: true}});
         const prioId= await PriorityLevel.findOne({ where: {project_guid, isDefault: true}});
@@ -33,7 +33,9 @@ exports.createTicket = async (req, res) => {
             parent_id,
             ticket_id,
             priority_id: prioId.id,
-            severity_id: severeId.id
+            severity_id: severeId.id,
+            linked_issue_id,
+            sprint_id
         });
 
         res.status(201).json({
@@ -55,6 +57,7 @@ exports.getTicketById = async (req, res) => {
         
         const ticket = await Tickets.findOne({ where: { guid } });
         const childTicket = await Tickets.findAll({where: { parent_id: ticket.id}});
+        const linkedTicket = await Tickets.findAll({ where:{ linked_issue_id: ticket.id}})
         const type = await Types.findOne({where:{ id: ticket.type_id}});
         const project = await Projects.findOne({where:{ guid: ticket.project_guid}})
         if (!ticket) {
@@ -67,10 +70,19 @@ exports.getTicketById = async (req, res) => {
                 type: childType ? childType.toJSON() : null,
             };
         }));
+
+        const linkedTicketWithTypes = await Promise.all(linkedTicket.map(async (linked)=>{
+            const linkedType = await Types.findOne({where:{ id: linked.type_id}});
+            return{
+                ...linked.toJSON(),
+                type: linkedType? linkedType.toJSON() : null
+            }
+        }))
         const ticketJson = ticket.toJSON(); 
         ticketJson.type = type ? type.toJSON() : null;
         ticketJson.project = project ? project.toJSON() : null;
         ticketJson.child_tickets =  childTicketsWithTypes;
+        ticketJson.linked_tickets = linkedTicketWithTypes;
 
         if (ticketJson.reporter_user_id) {
             const reporter = await Users.findByPk(ticketJson.reporter_user_id, {
@@ -93,7 +105,7 @@ exports.getTicketById = async (req, res) => {
 exports.updateTicket = async (req, res) => {
     try {
         const { guid } = req.params;
-        const { title, description, status_id, resolution, type_id, assignee_user_id, severity_id, priority_id, parent_id } = req.body;
+        const { title, description, status_id, resolution, type_id, assignee_user_id, severity_id, priority_id, parent_id, linked_issue_id, sprint_id } = req.body;
 
         // Find the ticket by GUID
         const ticket = await Tickets.findOne({ where: { guid } });
@@ -112,7 +124,9 @@ exports.updateTicket = async (req, res) => {
             severity_id, 
             priority_id,
             assignee_user_id,
-            parent_id
+            parent_id,
+            linked_issue_id,
+            sprint_id
         });
 
         return res.status(200).json({ message: 'Ticket updated successfully', ticket });

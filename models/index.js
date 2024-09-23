@@ -13,6 +13,8 @@ const PriorityLevel = require('./PriorityLevel');
 const Severity = require('./Severity');
 const Watcher = require('./Watcher');
 const AuditTrail = require('./AuditTrails');
+const Sprint = require('./Sprint');
+const Documents= require('./Documents');
 
 Projects.hasMany(ProjectMember, {
     foreignKey: 'project_id',

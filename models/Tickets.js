@@ -63,7 +63,7 @@ const Tickets = sequelize.define('Tickets',{
         type: DataTypes.STRING,
         allowNull: true
     },
-    parent_id:{ //prefix
+    parent_id:{ 
         type: DataTypes.INTEGER,
         allowNull: true
     },
@@ -73,7 +73,7 @@ const Tickets = sequelize.define('Tickets',{
     },
     severity_id:{
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
         references:{
             model: 'Severity',
             key: 'id'
@@ -81,11 +81,19 @@ const Tickets = sequelize.define('Tickets',{
     },
     priority_id:{
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
         references:{
             model: 'PriorityLevel',
             key: 'id'
         }
+    },
+    linked_issue_id:{
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    sprint_id:{
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 },{
     tableName: 'Tickets'
