@@ -66,7 +66,14 @@ exports.updateOrganization = async (req, res) => {
         let imagePath = null;
 
         const imageDir = 'uploads/images'; 
-        const existingImagePattern = new RegExp(`^${id}.*\\.(png|jpg|jpeg|gif)$`); 
+
+        // Fetch the organization to retrieve the GUID and other details
+        const organization = await Organization.findByPk(id);
+        if (!organization) {
+            return res.status(404).json({ error: 'Organization not found.' });
+        }
+
+        const existingImagePattern = new RegExp(`^${name}-${organization.guid}.*\\.(png|jpg|jpeg|gif)$`);
 
         // Function to delete existing images
         const deleteExistingImages = () => {
@@ -92,8 +99,13 @@ exports.updateOrganization = async (req, res) => {
             });
         };
 
-        // Delete existing images before processing the new upload
-        await deleteExistingImages();
+        // Only delete existing images if a new image is provided
+        if (req.body.imageBase64 || req.file) {
+            await deleteExistingImages();
+        }
+
+        // Generate a new image filename based on name and GUID
+        const imageFileName = `${name}-${organization.guid}`;
 
         // Check if imageBase64 was provided
         if (req.body.imageBase64) {
@@ -102,14 +114,13 @@ exports.updateOrganization = async (req, res) => {
             }
             const imageBase64 = req.body.imageBase64;
             const base64Data = imageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
-            const imageFileName = `${id}.png`; // Use the org ID as the filename
-            imagePath = path.join(imageDir, imageFileName);
+            imagePath = path.join(imageDir, `${imageFileName}.png`);
             fs.writeFileSync(imagePath, Buffer.from(base64Data, 'base64'));
         } 
         // If Multer uploaded a file
         else if (req.file) {
             const oldPath = req.file.path;
-            const newFileName = `${id}${path.extname(req.file.originalname)}`; // Use the org ID as the filename
+            const newFileName = `${imageFileName}${path.extname(req.file.originalname)}`;
             imagePath = path.join(imageDir, newFileName);
             
             fs.rename(oldPath, imagePath, (err) => {
@@ -119,18 +130,13 @@ exports.updateOrganization = async (req, res) => {
             });
         }
 
-        const organization = await Organization.findByPk(id);
-        if (!organization) {
-            return res.status(404).json({ error: 'Organization not found.' });
-        }
-
         const updateData = {
             name,
             description,
             subscription_type,
             subscription_StartDate,
             subscription_EndDate,
-            image: imagePath ? `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${imagePath.replace(/\\/g, '/')}` || organization.image: null, 
+            image: imagePath ? `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${imagePath.replace(/\\/g, '/')}` : organization.image, 
             isActive 
         };
 
