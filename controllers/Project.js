@@ -287,9 +287,16 @@ exports.deleteProject = async (req, res) => {
         const project = await Projects.findOne({ where: { guid } });
         const tickets= await Tickets.findAll({ where: {project_guid: guid}});
         const ticketIds = tickets.map(ticket => ticket.id);
-
+        const ticketGuids = tickets.map(ticket => ticket.guid);
         if (!project) {
             return res.status(404).json({ message: 'Project not found' });
+        }
+
+        for (const ticketGuid of ticketGuids) {
+            const deletedRecent = await Recent.destroy({
+                where: { ticket_guid: ticketGuid }
+            });
+            console.log(`Number of Recent entries deleted for ticket ${ticketGuid}:`, deletedRecent);
         }
 
         // Delete associated ProjectMembers
@@ -336,6 +343,7 @@ exports.deleteProject = async (req, res) => {
         });
         console.log('Number of PriorityLevel entries deleted:', deletedPriority);
 
+        
         // Delete the project
         await project.destroy();
         console.log('Project deleted:', project.guid);

@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const User = require('../models/User');
 
 const updateUser = async (id, updateData) => {
-    const { first_name,middle_name, last_name, email, username, color, organization_id } = updateData;
+    const { first_name,middle_name, last_name, email, username, color, organization_id, image } = updateData;
 
     const updateFields = {
         first_name,
@@ -12,7 +12,8 @@ const updateUser = async (id, updateData) => {
         email,
         username,
         color,
-        organization_id
+        organization_id,
+        image
     };
 
     const updatedUser = await UserModel.findByIdAndUpdate(id, {

@@ -39,9 +39,10 @@ const signup = async (req, res) => {
             username,
             password: hashedPassword,
             role: roles,
-            organization_id: orgId, // Use the existing or newly created organization ID
-            color: color || '#878787' , // Default to '#878787' if no color is provided,
-            isActive: true
+            organization_id: orgId, 
+            color: color || '#878787' , 
+            isActive: true,
+            image: null
         });
 
         res.status(201).json({ message: 'User created successfully', user });

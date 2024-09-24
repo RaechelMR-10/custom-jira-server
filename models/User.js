@@ -59,7 +59,11 @@ const User = sequelize.define('User', {
     isActive:{
         type: DataTypes.BOOLEAN,
         allowNull: true
-    }
+    },
+    user_image: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
 }, {
     tableName: 'Users',
     timestamps: true 

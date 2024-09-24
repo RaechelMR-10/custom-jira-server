@@ -60,31 +60,6 @@ exports.updateSprint = async (req, res) => {
     }
 }
 
-// Delete (soft delete) a sprint by ID
-exports.deleteSprint = async (req, res) => {
-    try {
-        const { guid } = req.params;
-
-        const sprint = await Sprint.findOne({ where: { guid } });
-
-        if (!sprint) {
-            return res.status(404).json({ error: 'Sprint not found' });
-        }
-
-        await Tickets.update(
-            { sprint_id: null }, 
-            { where: { sprint_id: sprint.id } }
-        );
-
-        await Sprint.destroy({
-            where: { guid }
-        });
-
-        return res.status(200).json({ message: 'Sprint deleted successfully', guid: guid });
-    } catch (error) {
-        return res.status(500).json({ error: 'Error deleting sprint' });
-    }
-};
 
 
 exports.getAllSprints = async (req, res) => {
@@ -128,3 +103,29 @@ exports.fetchAllTicketBySprintGuid = async(req, res)=>{
         return res.status(500).json({ error: 'Error retrieving tickets', details: error.message });
     }
 }
+
+exports.deleteSprint = async (req, res) => {
+    try {
+        const { sprint_guid } = req.params;
+
+        const sprint = await Sprint.findOne({ where: { guid: sprint_guid } });
+        if (!sprint) {
+            return res.status(404).json({ error: 'Sprint not found' });
+        }
+
+        const update = await Tickets.update(
+            { sprint_id: null },
+            { where: { sprint_id: sprint.id } }
+        );
+
+        await Sprint.destroy({ where: { guid: sprint_guid } });
+
+        return res.status(200).json({ 
+            message: 'Sprint details deleted successfully', 
+            updatedCount: update[0] 
+        });
+    } catch (error) {
+        return res.status(500).json({ error: 'Error deleting sprint details', details: error.message });
+    }
+};
+
