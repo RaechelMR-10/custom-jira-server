@@ -15,6 +15,7 @@ const Watcher = require('./Watcher');
 const AuditTrail = require('./AuditTrails');
 const Sprint = require('./Sprint');
 const Documents= require('./Documents');
+const Recent = require('./Recent');
 
 Projects.hasMany(ProjectMember, {
     foreignKey: 'project_id',

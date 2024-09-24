@@ -18,7 +18,7 @@ const Watcher = require('./models/Watcher');
 const AuditTrail= require('./models/AuditTrails');
 const Sprint = require('./models/Sprint');
 const Documents = require('./models/Documents');
-
+const Recent = require('./models/Recent');
 
 const tediousConnection = require('./config/tediousconn'); 
 const router = express.Router();
@@ -38,6 +38,7 @@ const severityRouter = require('./routes/severity');
 const priorityLevelRouter = require('./routes/priorityLevel');
 const documentRouter = require('./routes/documents');
 const sprintRouter = require('./routes/sprint');
+const recentRouter = require('./routes/recent');
 
 const bodyParser = require('body-parser');
 const { checkToken } = require('./controllers/Account');
@@ -71,7 +72,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   // Mount the route handlers
 app.use('/', router);
-app.use('/user', logRequest, userRouter);
+app.use('/user', logRequest, userRouter, recentRouter);
 app.use('/account',logRequest, authRouter);
 app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter, documentRouter, sprintRouter);
 app.use('/organization', logRequest, organizationRouter);

@@ -1,4 +1,4 @@
-const { Tickets, Projects, Types } = require('../models');
+const { Tickets, Projects, Types, Status } = require('../models');
 const Sprint = require('../models/Sprint');
 
 // Create a new sprint
@@ -65,19 +65,27 @@ exports.deleteSprint = async (req, res) => {
     try {
         const { guid } = req.params;
 
-        const deleted = await Sprint.destroy({
-            where: { guid }
-        });
+        const sprint = await Sprint.findOne({ where: { guid } });
 
-        if (!deleted) {
+        if (!sprint) {
             return res.status(404).json({ error: 'Sprint not found' });
         }
 
-        return res.status(200).json({ message: 'Sprint deleted successfully' });
+        await Tickets.update(
+            { sprint_id: null }, 
+            { where: { sprint_id: sprint.id } }
+        );
+
+        await Sprint.destroy({
+            where: { guid }
+        });
+
+        return res.status(200).json({ message: 'Sprint deleted successfully', guid: guid });
     } catch (error) {
         return res.status(500).json({ error: 'Error deleting sprint' });
     }
 };
+
 
 exports.getAllSprints = async (req, res) => {
     try {
@@ -100,9 +108,11 @@ exports.fetchAllTicketBySprintGuid = async(req, res)=>{
         const ticketwithType = await Promise.all(tickets.map(async(tick)=>{
             const tickJson= tick.toJSON();
             const type = await Types.findOne({ where:{ id: tickJson.type_id}});
+            const status = await Status.findOne({ where:{ id: tickJson.status_id}});
             return {
                 ...tickJson,
                 type: type ? type.toJSON() : null,
+                status: status ? status.toJSON() : null
             }
         }))
         const project_detail= await Projects.findOne({where:{ guid: sprint.project_guid}});
