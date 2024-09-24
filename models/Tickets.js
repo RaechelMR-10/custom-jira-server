@@ -73,7 +73,7 @@ const Tickets = sequelize.define('Tickets',{
     },
     severity_id:{
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references:{
             model: 'Severity',
             key: 'id'
@@ -81,7 +81,7 @@ const Tickets = sequelize.define('Tickets',{
     },
     priority_id:{
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references:{
             model: 'PriorityLevel',
             key: 'id'

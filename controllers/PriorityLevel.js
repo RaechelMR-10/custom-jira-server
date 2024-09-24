@@ -76,10 +76,10 @@ exports.deletePriorityLevel = async (req, res) => {
         const ticket = await Tickets.findAll({where:{ severity_id : id}});
         const projectGuid = priorityLevel.project_guid;
         if(ticket){
-            const defaultSeverity = await PriorityLevel.findOne({where:{ project_guid: projectGuid, isDefault: true}});
-            const defaultStatusId= defaultSeverity.id;
-            await Tickets.update({severity_id: defaultStatusId},{
-                where:{severity_id: id}
+            const defaultPriority = await PriorityLevel.findOne({where:{ project_guid: projectGuid, isDefault: true}});
+            const defaultStatusId= defaultPriority.id;
+            await Tickets.update({priority_id: defaultStatusId},{
+                where:{priority_id: id}
             })
         }
         if (priorityLevel) {
