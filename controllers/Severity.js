@@ -39,9 +39,9 @@ exports.deleteSeverity = async (req, res) => {
         const { id } = req.params;
         const severity = await Severity.findByPk(id);
         const ticket = await Tickets.findAll({where:{ severity_id : id}});
-
+        const projectGuid = severity.project_guid;
         if(ticket){
-            const defaultSeverity = await Severity.findOne({where:{ project_guid: ticket.project_guid, isDefault: true}});
+            const defaultSeverity = await Severity.findOne({where:{ project_guid: projectGuid, isDefault: true}});
             const defaultStatusId= defaultSeverity.id;
             await Tickets.update({severity_id: defaultStatusId},{
                 where:{severity_id: id}

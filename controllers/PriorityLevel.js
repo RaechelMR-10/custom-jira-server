@@ -74,9 +74,9 @@ exports.deletePriorityLevel = async (req, res) => {
         const { id } = req.params;
         const priorityLevel = await PriorityLevel.findByPk(id);
         const ticket = await Tickets.findAll({where:{ severity_id : id}});
-
+        const projectGuid = priorityLevel.project_guid;
         if(ticket){
-            const defaultSeverity = await PriorityLevel.findOne({where:{ project_guid: ticket.project_guid, isDefault: true}});
+            const defaultSeverity = await PriorityLevel.findOne({where:{ project_guid: projectGuid, isDefault: true}});
             const defaultStatusId= defaultSeverity.id;
             await Tickets.update({severity_id: defaultStatusId},{
                 where:{severity_id: id}

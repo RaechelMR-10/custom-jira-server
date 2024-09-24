@@ -54,7 +54,7 @@ exports.updateSprint = async (req, res) => {
             return res.status(404).json({ error: 'Sprint not found' });
         }
 
-        return res.status(200).json({ message: 'Sprint updated successfully' });
+        return res.status(200).json({ message: 'Sprint updated successfully', guid: guid });
     } catch (error) {
         return res.status(500).json({ error: 'Error updating sprint' });
     }
