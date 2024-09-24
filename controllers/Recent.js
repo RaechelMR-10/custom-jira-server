@@ -1,4 +1,4 @@
-const { Tickets, Types } = require('../models');
+const { Tickets, Types, Projects } = require('../models');
 const Recent = require('../models/Recent');
 const {Op}= require('sequelize');
 
@@ -45,13 +45,16 @@ exports.getAllRecents = async (req, res) => {
         const recentWithTicketandType = await Promise.all(recents.map(async (rec) => {
             const recentJson = rec.toJSON();
             const ticket = await Tickets.findOne({ where: { guid: recentJson.ticket_guid } });
-
+            const project = ticket ? await Projects.findOne({where:{guid: ticket.project_guid}}): null;
             const type = ticket ? await Types.findOne({ where: { id: ticket.type_id } }) : null;
 
             return {
                 ...recentJson,
-                ticket: ticket ? ticket.toJSON() : null,
-                type: type ? type.toJSON() : null
+                project,
+                ticket: ticket ? {
+                    ...ticket.toJSON(),
+                    type: type ? type.toJSON() : null // Include type inside ticket
+                } : null
             };
         }));
 
