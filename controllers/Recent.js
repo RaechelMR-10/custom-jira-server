@@ -1,16 +1,35 @@
 const { Tickets, Types } = require('../models');
 const Recent = require('../models/Recent');
-
+const {Op}= require('sequelize');
 
 exports.createRecent = async (req, res) => {
     try {
         const { user_guid, ticket_guid } = req.body;
+
+        const today = new Date();
+        const formattedToday = today.toISOString().split('T')[0]; 
+
+        const existingRecent = await Recent.findOne({
+            where: {
+                user_guid,
+                ticket_guid,
+                createdAt: {
+                    [Op.startsWith]: formattedToday 
+                }
+            }
+        });
+
+        if (existingRecent) {
+            return res.status(409).json({ error: 'Recent entry already exists for this date' });
+        }
+
         const recent = await Recent.create({ user_guid, ticket_guid });
         return res.status(201).json(recent);
     } catch (error) {
-        return res.status(500).json({ error: 'Error creating recent entry' });
+        return res.status(500).json({ error: 'Error creating recent entry', detail: error.message });
     }
 };
+
 
 
 exports.getAllRecents = async (req, res) => {
