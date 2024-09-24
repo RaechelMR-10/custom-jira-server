@@ -57,7 +57,6 @@ exports.getOrganizationById = async (req, res) => {
 };
 
 
-
 // Update an organization by ID
 exports.updateOrganization = async (req, res) => {
     try {
@@ -104,9 +103,6 @@ exports.updateOrganization = async (req, res) => {
             await deleteExistingImages();
         }
 
-        // Generate a new image filename based on name and GUID
-        const imageFileName = `${name}-${organization.guid}`;
-
         // Check if imageBase64 was provided
         if (req.body.imageBase64) {
             if (!/^data:image\/[a-zA-Z]+;base64,/.test(req.body.imageBase64)) {
@@ -114,13 +110,19 @@ exports.updateOrganization = async (req, res) => {
             }
             const imageBase64 = req.body.imageBase64;
             const base64Data = imageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
-            imagePath = path.join(imageDir, `${imageFileName}.png`);
+
+            // Generate filename: name + guid + "base64.png"
+            const imageFileName = `${name}-${organization.guid}-base64.png`;
+            imagePath = path.join(imageDir, imageFileName);
             fs.writeFileSync(imagePath, Buffer.from(base64Data, 'base64'));
         } 
         // If Multer uploaded a file
         else if (req.file) {
             const oldPath = req.file.path;
-            const newFileName = `${imageFileName}${path.extname(req.file.originalname)}`;
+            
+            // Generate filename: name + guid + original filename
+            const originalFileName = req.file.originalname;
+            const newFileName = `${name}-${organization.guid}-${originalFileName}`;
             imagePath = path.join(imageDir, newFileName);
             
             fs.rename(oldPath, imagePath, (err) => {
@@ -154,6 +156,7 @@ exports.updateOrganization = async (req, res) => {
         res.status(500).json({ error: 'Error updating organization.', details: error.message });
     }
 };
+
 
 
 
