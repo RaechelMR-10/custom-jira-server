@@ -42,7 +42,7 @@ const signup = async (req, res) => {
             organization_id: orgId, 
             color: color || '#878787' , 
             isActive: true,
-            image: null
+            user_image: null
         });
 
         res.status(201).json({ message: 'User created successfully', user });

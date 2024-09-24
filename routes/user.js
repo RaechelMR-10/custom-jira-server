@@ -12,15 +12,6 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
-// Get Single User
-router.get('/:id', async (req, res) => {
-    try {
-        const user = await getUser(req.params.id);
-        res.json(user);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
 
 router.get('/', async (req, res) => {
     try {
@@ -45,4 +36,6 @@ router.put('/delete/:guid', deleteUser);
 
 router.get('/project-members/:guid', getProjectMembers);
 
+// Get Single User
+router.get('/:user_guid', getUser );
 module.exports = router;

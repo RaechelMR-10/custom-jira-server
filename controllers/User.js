@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const User = require('../models/User');
 
 const updateUser = async (id, updateData) => {
-    const { first_name,middle_name, last_name, email, username, color, organization_id, image } = updateData;
+    const { first_name,middle_name, last_name, email, username, color, organization_id, user_image } = updateData;
 
     const updateFields = {
         first_name,
@@ -13,7 +13,7 @@ const updateUser = async (id, updateData) => {
         username,
         color,
         organization_id,
-        image
+        user_image
     };
 
     const updatedUser = await UserModel.findByIdAndUpdate(id, {
@@ -27,18 +27,26 @@ const updateUser = async (id, updateData) => {
     return updatedUser;
 };
 
-
-const getUser = async (id) => {
+const getUser = async (req, res) => {
     try {
-        const user = await Users.findByPk(id);
+        const { user_guid } = req.params;
+
+        const user = await Users.findOne({ where: { guid: user_guid } });
         if (!user) {
-            throw new Error('User not found');
+            return res.status(404).json({ error: 'User not found' });
         }
-        return hideSensitiveData(user);
+
+        const organization = await Organization.findOne({ where: { id: user.organization_id } });
+
+        return res.json({
+            ...hideSensitiveData(user),
+            organization_details: organization
+        });
     } catch (error) {
-        throw new Error(`Error getting user: ${error.message}`);
+        return res.status(500).json({ error: `Error getting user: ${error.message}` });
     }
 };
+
 
 // Function to get all users with pagination
 const getAllUsersByOrganizationID = async (organization_id, page, pageSize) => {

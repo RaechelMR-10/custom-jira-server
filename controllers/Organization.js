@@ -65,8 +65,8 @@ exports.updateOrganization = async (req, res) => {
         const { name, description, subscription_type, subscription_StartDate, subscription_EndDate, isActive } = req.body;
         let imagePath = null;
 
-        const imageDir = 'uploads/images'; // Directory where images are stored
-        const existingImagePattern = new RegExp(`^${id}.*\\.(png|jpg|jpeg|gif)$`); // Adjust extensions as needed
+        const imageDir = 'uploads/images'; 
+        const existingImagePattern = new RegExp(`^${id}.*\\.(png|jpg|jpeg|gif)$`); 
 
         // Function to delete existing images
         const deleteExistingImages = () => {

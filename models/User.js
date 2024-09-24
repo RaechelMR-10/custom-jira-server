@@ -64,6 +64,22 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    work: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    location: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    department: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    phone_number: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
 }, {
     tableName: 'Users',
     timestamps: true 
