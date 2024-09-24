@@ -27,8 +27,8 @@ const Sprint = sequelize.define('Sprint', {
         type: DataTypes.DATEONLY,
         allowNull: true
     },
-    estimate:{
-        type: DataTypes.STRING,
+    estimated_date_end:{
+        type: DataTypes.DATEONLY,
         allowNull: true
     },
     duration:{

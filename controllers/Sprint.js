@@ -4,14 +4,14 @@ const Sprint = require('../models/Sprint');
 // Create a new sprint
 exports.createSprint = async (req, res) => {
     try{
-        const {title, description, date_start, date_end,estimate, duration, isActive, project_guid} = req.body;
+        const {title, description, date_start, date_end,estimated_date_end, duration, isActive, project_guid} = req.body;
 
         const newSprint = await Sprint.create({
                 title,
                 description,
                 date_start,
                 date_end,
-                estimate,
+                estimated_date_end,
                 duration,
                 isActive,
                 project_guid
@@ -43,10 +43,10 @@ exports.getSprintById = async (req, res) => {
 exports.updateSprint = async (req, res) => {
     try {
         const { guid } = req.params;
-        const { title, description, date_start, date_end, estimate, duration, isActive } = req.body;
+        const { title, description, date_start, date_end, estimated_date_end, duration, isActive } = req.body;
 
         const updated = await Sprint.update(
-            { title, description, date_start, date_end, estimate, duration, isActive },
+            { title, description, date_start, date_end, estimated_date_end, duration, isActive },
             { where: { guid } }
         );
 
@@ -106,25 +106,34 @@ exports.fetchAllTicketBySprintGuid = async(req, res)=>{
 
 exports.deleteSprint = async (req, res) => {
     try {
-        const { sprint_guid } = req.params;
+        console.log('Request params:', req.params); 
+        const { guid } = req.params;
+        console.log('Extracted sprint_guid:', guid); 
 
-        const sprint = await Sprint.findOne({ where: { guid: sprint_guid } });
+        if (!guid) {
+            return res.status(400).json({ error: 'Sprint GUID is required' });
+        }
+
+        const sprint = await Sprint.findOne({ where: { guid: guid } });
         if (!sprint) {
             return res.status(404).json({ error: 'Sprint not found' });
         }
+
+        console.log('Sprint found for deletion:', sprint); // Log the sprint details before deletion
 
         const update = await Tickets.update(
             { sprint_id: null },
             { where: { sprint_id: sprint.id } }
         );
 
-        await Sprint.destroy({ where: { guid: sprint_guid } });
+        await Sprint.destroy({ where: { guid: guid } });
 
         return res.status(200).json({ 
             message: 'Sprint details deleted successfully', 
             updatedCount: update[0] 
         });
     } catch (error) {
+        console.error('Error details:', error); // Log the error for debugging
         return res.status(500).json({ error: 'Error deleting sprint details', details: error.message });
     }
 };
