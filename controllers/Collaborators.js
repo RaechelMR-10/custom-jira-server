@@ -1,7 +1,8 @@
 const TicketHistory = require('../models/TicketHistory');
 const User = require('../models/User');
+const {Op} = require('sequelize');
 
-exports.getCollabUserInTicketHistory = async (req, res) => {
+exports.getCollabUserInTicketHistory = async (req, res) => { 
     try {
         const { user_guid } = req.params;
         const user = await User.findOne({ where: { guid: user_guid } });
@@ -33,13 +34,22 @@ exports.getCollabUserInTicketHistory = async (req, res) => {
             }
         });
 
-        const uniqueCollaborators = new Set();
+        const uniqueCollaboratorIds = new Set();
         collaborators.forEach(row => {
-            uniqueCollaborators.add(row.user_id);
-            uniqueCollaborators.add(row.target_user_id);
+            uniqueCollaboratorIds.add(row.user_id);
+            uniqueCollaboratorIds.add(row.target_user_id);
         });
 
-        res.json([...uniqueCollaborators]);
+        const collaboratorDetails = await User.findAll({
+            where: {
+                id: {
+                    [Op.in]: [...uniqueCollaboratorIds]
+                }
+            },
+            attributes: ['id', 'first_name','last_name', 'email', 'role'] // Add any other user details you need
+        });
+
+        res.json(collaboratorDetails);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
