@@ -40,13 +40,15 @@ exports.getCollabUserInTicketHistory = async (req, res) => {
             uniqueCollaboratorIds.add(row.target_user_id);
         });
 
+        uniqueCollaboratorIds.delete(user.id);
+
         const collaboratorDetails = await User.findAll({
             where: {
                 id: {
                     [Op.in]: [...uniqueCollaboratorIds]
                 }
             },
-            attributes: ['id', 'first_name','last_name', 'email', 'role'] // Add any other user details you need
+            attributes: ['id', 'guid', 'first_name', 'last_name', 'email', 'role', 'color'] 
         });
 
         res.json(collaboratorDetails);
