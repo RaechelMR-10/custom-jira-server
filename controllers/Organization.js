@@ -130,7 +130,7 @@ exports.updateOrganization = async (req, res) => {
             subscription_type,
             subscription_StartDate,
             subscription_EndDate,
-            image: `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${imagePath.replace(/\\/g, '/')}` || organization.image, 
+            image: imagePath ? `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${imagePath.replace(/\\/g, '/')}` || organization.image: null, 
             isActive 
         };
 
@@ -145,7 +145,7 @@ exports.updateOrganization = async (req, res) => {
             res.status(404).json({ error: 'Organization not found.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'Error updating organization.' });
+        res.status(500).json({ error: 'Error updating organization.', details: error.message });
     }
 };
 

@@ -78,7 +78,12 @@ const auth = async (req, res) => {
         }
         
         // Generate JWT token
-        const token = jwt.sign({ id: user.id, guid: user.guid }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(
+            { id: user.id, guid: user.guid },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+        
 
         // Exclude password from user data
         const userJson = user.toJSON ? user.toJSON() : user;

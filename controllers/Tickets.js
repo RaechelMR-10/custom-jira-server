@@ -432,6 +432,7 @@ exports.getTicketsByProjectGuid = async (req, res) => {
             severity: severe,
             member_details: userMemberInfo,
             total: tickets.count,
+            overall_total: overallTotal,
             page: parseInt(page, 10),
             limit: parseInt(limit, 10)
         });

@@ -72,12 +72,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   // Mount the route handlers
 app.use('/', router);
-app.use('/user', logRequest, userRouter, recentRouter);
+app.use('/user', logRequest, checkToken, userRouter, recentRouter);
 app.use('/account',logRequest, authRouter);
-app.use('/project', logRequest, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter, documentRouter, sprintRouter);
-app.use('/organization', logRequest, organizationRouter);
-app.use('/ticket', logRequest, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
-app.use('/project-member', logRequest, projectmemberRouter);
+app.use('/project', logRequest, checkToken, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter, documentRouter, sprintRouter);
+app.use('/organization', logRequest, checkToken, organizationRouter);
+app.use('/ticket', logRequest, checkToken, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
+app.use('/project-member', logRequest, checkToken, projectmemberRouter);
   
  
 // Error handling middleware
