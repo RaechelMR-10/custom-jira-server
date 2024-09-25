@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { updateUser, getUser, deleteUser, getAllUsersByOrganizationID, getAllOrgUserThatIsNotMember , getProjectMembers} = require('../controllers/User');
-
+const {validateUserGuid, validateGetAllUsersByOrganizationID} = require('../middlewares/userValidations');
 // Update User
 router.put('/update/:id', async (req, res) => {
     try {
@@ -13,7 +13,7 @@ router.put('/update/:id', async (req, res) => {
 });
 
 
-router.get('/', async (req, res) => {
+router.get('/', validateGetAllUsersByOrganizationID, async (req, res) => {
     try {
         const organizationId = parseInt(req.query.organization, 10);
         const page = parseInt(req.query.page, 10);
@@ -32,10 +32,10 @@ router.get('/', async (req, res) => {
 
 router.get('/list/:organization_id/:project_guid', getAllOrgUserThatIsNotMember );
 
-router.put('/delete/:guid', deleteUser);
+router.put('/delete/:guid',validateUserGuid, deleteUser);
 
 router.get('/project-members/:guid', getProjectMembers);
 
 // Get Single User
-router.get('/:user_guid', getUser );
+router.get('/:user_guid', validateUserGuid , getUser );
 module.exports = router;

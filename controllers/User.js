@@ -1,31 +1,105 @@
 const {Users, Projects, Organization, ProjectMember} = require('../models');
 const { Op } = require('sequelize');
 const User = require('../models/User');
+const fs = require('fs');
+const path = require('path');
 
-const updateUser = async (id, updateData) => {
-    const { first_name,middle_name, last_name, email, username, color, organization_id, user_image } = updateData;
+// Update user by ID
+const updateUser = async (id, updateData, imageFile) => {
+    try {
+        const { first_name, middle_name, last_name, email, username, color, organization_id } = updateData;
 
-    const updateFields = {
-        first_name,
-        last_name,
-        middle_name,
-        email,
-        username,
-        color,
-        organization_id,
-        user_image
-    };
+        const user = await UserModel.findById(id);
+        if (!user) {
+            throw new Error('User not found');
+        }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(id, {
-        $set: updateFields
-    }, { new: true }); 
+        const userGuid = user.guid; // Get user GUID
+        const imageDir = path.join('uploads', 'images', 'userdata'); // Update the directory for user images
+        const existingImagePattern = new RegExp(`^${last_name}-${userGuid}.*\\.(png|jpg|jpeg|gif)$`);
+        let user_image = user.user_image; // Existing image path
 
-    if (!updatedUser) {
-        throw new Error('User not found');
+        // Function to delete existing images
+        const deleteExistingImages = () => {
+            return new Promise((resolve, reject) => {
+                fs.readdir(imageDir, (err, files) => {
+                    if (err) return reject(err);
+
+                    const deletePromises = files
+                        .filter(file => existingImagePattern.test(file))
+                        .map(file => {
+                            return new Promise((res, rej) => {
+                                fs.unlink(path.join(imageDir, file), err => {
+                                    if (err) return rej(err);
+                                    res();
+                                });
+                            });
+                        });
+
+                    Promise.all(deletePromises)
+                        .then(resolve)
+                        .catch(reject);
+                });
+            });
+        };
+
+        // Only delete existing images if a new image is provided
+        if (updateData.imageBase64 || imageFile) {
+            await deleteExistingImages();
+        }
+
+        // If base64 image was provided
+        if (updateData.imageBase64) {
+            if (!/^data:image\/[a-zA-Z]+;base64,/.test(updateData.imageBase64)) {
+                throw new Error('Invalid base64 image format.');
+            }
+
+            const imageBase64 = updateData.imageBase64;
+            const base64Data = imageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+
+            // Generate filename: last_name + guid + "base64.png"
+            const imageFileName = `${last_name}-${userGuid}-base64.png`;
+            user_image = path.join(imageDir, imageFileName);
+            fs.writeFileSync(user_image, Buffer.from(base64Data, 'base64'));
+        } 
+        // If Multer uploaded a file
+        else if (imageFile) {
+            const oldPath = imageFile.path;
+
+            // Generate filename: last_name + guid + original filename
+            const originalFileName = imageFile.originalname; // Original filename
+            const ext = path.extname(originalFileName); // Get file extension
+            const newFileName = `${last_name}-${userGuid}${ext}`; // Format: last_name + guid + original extension
+            user_image = path.join(imageDir, newFileName);
+
+            fs.renameSync(oldPath, user_image); // Rename uploaded file to the new filename
+        }
+
+        // Update user details with new image path
+        const updateFields = {
+            first_name,
+            middle_name,
+            last_name,
+            email,
+            username,
+            color,
+            organization_id,
+            user_image: user_image ? `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}/${user_image.replace(/\\/g, '/')}` : user.user_image
+        };
+
+        const updatedUser = await UserModel.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
+
+        if (!updatedUser) {
+            throw new Error('User not found');
+        }
+
+        return updatedUser;
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        throw new Error('Error updating user: ' + error.message); // Rethrow with a more descriptive message
     }
-
-    return updatedUser;
 };
+
 
 const getUser = async (req, res) => {
     try {

@@ -1,20 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const ticketsController = require('../controllers/Tickets');
+const {validateGetTickets, validateUpdateTicket, validateTicketGuid} = require('../middlewares/ticketValidations');
 
 // Create a new ticket
 router.post('/create', ticketsController.createTicket);
 
 // Get a ticket by ID
-router.get('/:guid', ticketsController.getTicketById);
+router.get('/:guid',validateTicketGuid, ticketsController.getTicketById);
 
 // Update a ticket by ID
-router.put('/update/:guid', ticketsController.updateTicket);
+router.put('/update/:guid',validateUpdateTicket, ticketsController.updateTicket);
 
 // Delete a ticket by ID
 router.delete('/delete/:id', ticketsController.deleteTicket);
 
-router.get('/list/:project_guid', ticketsController.getTicketsByProjectGuid)
+router.get('/list/:project_guid', validateGetTickets, ticketsController.getTicketsByProjectGuid)
 
 
 

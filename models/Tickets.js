@@ -67,7 +67,7 @@ const Tickets = sequelize.define('Tickets',{
         type: DataTypes.INTEGER,
         allowNull: true
     },
-    ticket_id:{ //prefix
+    ticket_id:{ 
         type: DataTypes.STRING, 
         allowNull: true
     },
