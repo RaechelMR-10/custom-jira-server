@@ -23,6 +23,7 @@ exports.createSprint = async (req, res) => {
         return res.status(500).json({ error: 'Error creating sprint' });
     }
 }
+
 // Read (get) a sprint by ID
 exports.getSprintById = async (req, res) => {
     try {
