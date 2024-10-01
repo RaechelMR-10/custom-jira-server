@@ -14,10 +14,11 @@ const validateUserGuid = [
 ];
 
 
+
 const validateGetAllUsersByOrganizationID = [
-    param('organization_id').isInt().withMessage('Invalid organization ID format'),
-    query('page').isInt({ min: 1 }).withMessage('Page must be a positive integer'),
-    query('pageSize').isInt({ min: 1 }).withMessage('Page size must be a positive integer'),
+    query('organization').isInt().withMessage('Organization ID must be an integer.'),
+    query('page').isInt().withMessage('Page must be an integer.'),
+    query('pageSize').isInt().withMessage('Page size must be an integer.'),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
