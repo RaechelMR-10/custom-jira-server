@@ -45,6 +45,9 @@ const bodyParser = require('body-parser');
 const { checkToken } = require('./controllers/Account');
 const app = express();
 const port = 3001
+const rateLimit = require('express-rate-limit');
+
+
 // Sync models with the database
 sequelize.sync({ alter: true }) 
 app.use(cors());
@@ -64,11 +67,18 @@ app.use(express.json());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+});
+
 const logRequest = (req, res, next) => {
     console.log(`Received request: ${req.method} ${req.url}`);
     next();
 };
 
+app.use(apiLimiter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   // Mount the route handlers

@@ -2,7 +2,7 @@ const { body, param, validationResult } = require('express-validator');
 
 const validateCreateStatus = [
     body('name').notEmpty().withMessage('Name is required'),
-    body('color').notEmpty().withMessage('Color is required'),
+    body('color').optional({ nullable: true }).notEmpty().withMessage('Color is required'),
     body('project_guid').isUUID().withMessage('Project GUID must be a valid UUID'),
     (req, res, next) => {
         const errors = validationResult(req);

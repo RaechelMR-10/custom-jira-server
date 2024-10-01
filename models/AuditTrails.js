@@ -30,7 +30,7 @@ const AuditTrails = sequelize.define('AuditTrails',{
     },
     ip_address:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     organization_id:{
         type: DataTypes.INTEGER,
@@ -39,6 +39,10 @@ const AuditTrails = sequelize.define('AuditTrails',{
             model: 'Organizations',
             key: 'id'
         }
+    },
+    user_agent:{
+        type: DataTypes.STRING,
+        allowNull: false
     }
 },{
     tableName: 'AuditTrails'

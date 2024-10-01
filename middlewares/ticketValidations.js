@@ -39,15 +39,15 @@ const validateUpdateTicket = [
     param('guid').isUUID().withMessage('Invalid ticket GUID format'),
     body('title').optional().isString().withMessage('Title must be a string'),
     body('description').optional().isString().withMessage('Description must be a string'),
-    body('status_id').optional().isUUID().withMessage('Invalid status ID format'),
+    body('status_id').optional().isInt().withMessage('Invalid status ID format'),
     body('resolution').optional().isString().withMessage('Resolution must be a string'),
-    body('type_id').optional().isUUID().withMessage('Invalid type ID format'),
-    body('assignee_user_id').optional().isUUID().withMessage('Invalid assignee user ID format'),
-    body('severity_id').optional().isUUID().withMessage('Invalid severity ID format'),
-    body('priority_id').optional().isUUID().withMessage('Invalid priority ID format'),
-    body('parent_id').optional().isUUID().withMessage('Invalid parent ticket ID format'),
-    body('linked_issue_id').optional().isUUID().withMessage('Invalid linked issue ID format'),
-    body('sprint_id').optional().isUUID().withMessage('Invalid sprint ID format'),
+    body('type_id').optional().isInt().withMessage('Invalid type ID format'),
+    body('assignee_user_id').optional().isInt().withMessage('Invalid assignee user ID format'),
+    body('severity_id').optional().isInt().withMessage('Invalid severity ID format'),
+    body('priority_id').optional().isInt().withMessage('Invalid priority ID format'),
+    body('parent_id').optional().isInt().withMessage('Invalid parent ticket ID format'),
+    body('linked_issue_id').optional().isInt().withMessage('Invalid linked issue ID format'),
+    body('sprint_id').optional().isInt().withMessage('Invalid sprint ID format'),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

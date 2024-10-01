@@ -28,7 +28,7 @@ const validateDeleteType = [
 
 const validateCreateType = [
     body('name').notEmpty().withMessage('Name is required'),
-    body('icon').notEmpty().withMessage('Icon is required'),
+    body('icon').optional({ nullable: true }).notEmpty().withMessage('Icon is required'),
     body('project_guid').isUUID().withMessage('Project GUID must be a valid UUID'),
     (req, res, next) => {
         const errors = validationResult(req);

@@ -31,7 +31,7 @@ exports.createOrganization = async (req, res) => {
             image: imagePath || null 
         });
 
-        res.status(201).json(newOrganization);
+        res.status(201).json({sucess:true, organization: newOrganization});
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the organization.' });
     }

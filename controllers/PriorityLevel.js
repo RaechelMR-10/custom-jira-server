@@ -6,7 +6,7 @@ exports.createPriorityLevel = async (req, res) => {
     try {
         const { name, color, project_guid, isDefault } = req.body;
         const priorityLevel = await PriorityLevel.create({ name, color, project_guid, isDefault });
-        res.status(201).json(priorityLevel);
+    res.status(201).json({sucess:true, priority: priorityLevel});
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -12,7 +12,7 @@ exports.createDocument = async (req, res) => {
             project_guid
         });
 
-        return res.status(201).json(newDocument);
+        return res.status(201).json({sucess: true, newDocument});
     } catch (error) {
         return res.status(500).json({ error: 'Error creating document' });
     }
@@ -23,7 +23,7 @@ exports.getAllDocuments = async (req, res) => {
     try {
         const {project_guid}= req.params
         const documents = await Documents.findAll({where:{ project_guid}});
-        return res.status(200).json(documents);
+        return res.status(200).json({sucess: true,documents});
     } catch (error) {
         return res.status(500).json({ error: 'Error retrieving documents' });
     }
@@ -39,7 +39,7 @@ exports.getDocumentById = async (req, res) => {
             return res.status(404).json({ error: 'Document not found' });
         }
 
-        return res.status(200).json(document);
+        return res.status(200).json({sucess:true,document});
     } catch (error) {
         return res.status(500).json({ error: 'Error retrieving document' });
     }
@@ -63,7 +63,7 @@ exports.updateDocument = async (req, res) => {
             project_guid
         });
 
-        return res.status(200).json(updatedDocument);
+        return res.status(200).json({sucess: true, documents: updatedDocument});
     } catch (error) {
         return res.status(500).json({ error: 'Error updating document' });
     }

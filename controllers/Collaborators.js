@@ -26,7 +26,7 @@ exports.getCollabUserInTicketHistory = async (req, res) => {
 
         const ticketIds = tickets.map(row => row.ticket_id);
 
-        const collaborators = await TicketHistory.findAll({
+        const collaboratorsdet = await TicketHistory.findAll({
             where: {
                 ticket_id: {
                     [Op.in]: ticketIds
@@ -35,14 +35,14 @@ exports.getCollabUserInTicketHistory = async (req, res) => {
         });
 
         const uniqueCollaboratorIds = new Set();
-        collaborators.forEach(row => {
+        collaboratorsdet.forEach(row => {
             uniqueCollaboratorIds.add(row.user_id);
             uniqueCollaboratorIds.add(row.target_user_id);
         });
 
         uniqueCollaboratorIds.delete(user.id);
 
-        const collaboratorDetails = await User.findAll({
+        const collaborators = await User.findAll({
             where: {
                 id: {
                     [Op.in]: [...uniqueCollaboratorIds]
@@ -51,7 +51,7 @@ exports.getCollabUserInTicketHistory = async (req, res) => {
             attributes: ['id', 'guid', 'first_name', 'last_name', 'email', 'role', 'color'] 
         });
 
-        res.json(collaboratorDetails);
+        res.json({sucess: true, collaborators});
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

@@ -45,7 +45,7 @@ const signup = async (req, res) => {
             user_image: null
         });
 
-        res.status(201).json({ message: 'User created successfully', user });
+        res.status(201).json({ message: 'User created successfully',success: true,  user });
     } catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: 'Error creating user', details: error.message });
@@ -227,7 +227,7 @@ const auth = async (req, res) => {
         }
 
         // Send success response with user data (exclude role info)
-        res.status(200).json({ message: 'Login successful', token, user: userData });
+        res.status(200).json({ message: 'Login successful',success: true,  token, user: userData });
     } catch (error) {
         res.status(500).json({ error: 'Error logging in', details: error.message });
     }

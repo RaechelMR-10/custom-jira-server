@@ -13,7 +13,7 @@ router.put('/update/:id', async (req, res) => {
 });
 
 
-router.get('/', validateGetAllUsersByOrganizationID, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const organizationId = parseInt(req.query.organization, 10);
         const page = parseInt(req.query.page, 10);

@@ -4,7 +4,7 @@ const { param, body, validationResult } = require('express-validator');
 
 const validateUpdateOrganization = [
     // Validate the 'id' param to ensure it's a valid UUID
-    param('id').isUUID().withMessage('Organization ID must be a valid UUID'),
+    param('id').isInt().withMessage('Organization ID must be a valid UUID'),
 
     // Validate the fields in the request body
     body('name').optional().isString().withMessage('Name must be a string'),
