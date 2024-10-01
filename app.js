@@ -45,7 +45,14 @@ const bodyParser = require('body-parser');
 const { checkToken } = require('./controllers/Account');
 const app = express();
 const port = 3001
-const rateLimit = require('express-rate-limit');
+const {
+  userLimiter,
+  projectLimiter,
+  accountLimiter,
+  organizationLimiter,
+  ticketLimiter,
+  projectMemberLimiter,
+} = require('./config/rateLimiter');
 
 
 // Sync models with the database
@@ -67,28 +74,22 @@ app.use(express.json());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-});
 
 const logRequest = (req, res, next) => {
     console.log(`Received request: ${req.method} ${req.url}`);
     next();
 };
 
-app.use(apiLimiter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   // Mount the route handlers
 app.use('/', router);
-app.use('/user', logRequest, checkToken, userRouter, recentRouter, collabRouter);
-app.use('/account',logRequest, authRouter);
-app.use('/project', logRequest, checkToken, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter, documentRouter, sprintRouter);
-app.use('/organization', logRequest, checkToken, organizationRouter, auditRouter);
-app.use('/ticket', logRequest, checkToken, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
-app.use('/project-member', logRequest, checkToken, projectmemberRouter);
+app.use('/user', logRequest, checkToken, userLimiter, userRouter, recentRouter, collabRouter);
+app.use('/account',logRequest,accountLimiter, authRouter);
+app.use('/project', logRequest, checkToken, projectLimiter, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter, documentRouter, sprintRouter);
+app.use('/organization', organizationLimiter, logRequest, checkToken, organizationRouter, auditRouter);
+app.use('/ticket', logRequest, checkToken, ticketLimiter, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
+app.use('/project-member', logRequest, checkToken, projectMemberLimiter, projectmemberRouter);
   
  
 // Error handling middleware
