@@ -40,7 +40,7 @@ const documentRouter = require('./routes/documents');
 const sprintRouter = require('./routes/sprint');
 const recentRouter = require('./routes/recent');
 const collabRouter = require('./routes/collaborator')
-
+const auditRouter = require('./routes/auditTrails');
 const bodyParser = require('body-parser');
 const { checkToken } = require('./controllers/Account');
 const app = express();
@@ -76,7 +76,7 @@ app.use('/', router);
 app.use('/user', logRequest, checkToken, userRouter, recentRouter, collabRouter);
 app.use('/account',logRequest, authRouter);
 app.use('/project', logRequest, checkToken, projectsRouter, statusRouter, typesRouter, severityRouter, priorityLevelRouter, documentRouter, sprintRouter);
-app.use('/organization', logRequest, checkToken, organizationRouter);
+app.use('/organization', logRequest, checkToken, organizationRouter, auditRouter);
 app.use('/ticket', logRequest, checkToken, ticketsRouter, ticketCommentsRouter, ticketHistoryRouter);
 app.use('/project-member', logRequest, checkToken, projectmemberRouter);
   
