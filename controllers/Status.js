@@ -1,4 +1,4 @@
-const { Tickets } = require('../models');
+const { Tickets, Projects } = require('../models');
 const Status = require('../models/Status'); 
 
 // Create a new status
@@ -102,8 +102,9 @@ exports.deleteStatus = async (req, res) => {
 // Get all statuses
 exports.getAllStatuses = async (req, res) => {
     try {
-        const statuses = await Status.findAll();
-        res.json(statuses);
+        const {project_guid}= req.params
+        const statuses = await Status.findAll({where:{ project_guid}});
+        res.json({sucess: true,statuses});
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the statuses.' });
     }

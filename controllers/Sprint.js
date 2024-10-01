@@ -1,5 +1,6 @@
-const { Tickets, Projects, Types, Status } = require('../models');
+const { Tickets, Projects, Types, Status, ProjectMember } = require('../models');
 const Sprint = require('../models/Sprint');
+const User = require('../models/User');
 
 // Create a new sprint
 exports.createSprint = async (req, res) => {
@@ -80,6 +81,10 @@ exports.fetchAllTicketBySprintGuid = async(req, res)=>{
     try{
         const {sprint_guid}= req.params;
         const sprint = await Sprint.findOne({where:{guid: sprint_guid}});
+        const projectGuid = sprint.project_guid;
+        if (!projectGuid) {
+            return res.status(404).json({ error: 'Project GUID is undefined' });
+        }
         const tickets = await Tickets.findAll({ where:{ sprint_id: sprint.id}});
         const ticketwithType = await Promise.all(tickets.map(async(tick)=>{
             const tickJson= tick.toJSON();
@@ -91,12 +96,34 @@ exports.fetchAllTicketBySprintGuid = async(req, res)=>{
                 status: status ? status.toJSON() : null
             }
         }))
-        const project_detail= await Projects.findOne({where:{ guid: sprint.project_guid}});
+
+        const project_detail= await Projects.findOne({where:{ guid: projectGuid}});
+        const statuses = await Status.findAll({where:{ project_guid: project_detail.guid}});
+        const types = await Types.findAll({where:{ project_guid: project_detail.guid}});
+        const project_mem = await ProjectMember.findAll({where: { project_id: project_detail.id}});
+        const project_members = await Promise.all(project_mem.map(async (mems) =>{
+            const memJson = mems.toJSON();
+            const user = await User.findOne({where:{ id: memJson.user_id}, attributes:['id', 'first_name', 'last_name', 'color', 'isActive']});
+
+            return {
+                ...memJson,
+                user: user ? user.toJSON(): null
+            }
+        }));
+        
 
         res.status(200).json({
+            sucess: true,
             sprint: sprint.toJSON(),
             tickets: ticketwithType,
-            project_detail: project_detail ? project_detail.toJSON() : null
+            project_detail: project_detail ,
+            config:{
+                statuses,
+                types, 
+                project_members
+            },
+
+
         });
         
     }
