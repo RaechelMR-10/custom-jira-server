@@ -19,7 +19,7 @@ const AuditTrail= require('./models/AuditTrails');
 const Sprint = require('./models/Sprint');
 const Documents = require('./models/Documents');
 const Recent = require('./models/Recent');
-
+const Attachments = require('./models/Attachments');
 const tediousConnection = require('./config/tediousconn'); 
 const router = express.Router();
 const cors = require('cors');

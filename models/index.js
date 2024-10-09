@@ -16,6 +16,7 @@ const AuditTrail = require('./AuditTrails');
 const Sprint = require('./Sprint');
 const Documents= require('./Documents');
 const Recent = require('./Recent');
+const Attachments = require('./Attachments');
 
 Projects.hasMany(ProjectMember, {
     foreignKey: 'project_id',
@@ -38,4 +39,4 @@ Users.hasMany(Tickets, { as: 'reportedTickets', foreignKey: 'reporter_user_id' ,
 Users.hasMany(Tickets, { as: 'assignedTickets', foreignKey: 'assignee_user_id' , onDelete: 'NO ACTION'});
 
 
-module.exports = { sequelize, Users, Organization, Projects,ProjectMember, Status, TicketComments, TicketHistory, Tickets, Types };
+module.exports = { sequelize, Users, Organization, Projects,ProjectMember, Status, TicketComments, TicketHistory, Tickets, Types, AuditTrail, Sprint, Severity, PriorityLevel, Documents, Attachments, Watcher };
