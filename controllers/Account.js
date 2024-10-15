@@ -27,10 +27,8 @@ const signup = async (req, res) => {
             roles = 'admin'
         }
 
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create the user with the organization ID
         const user = await Users.create({
             first_name,
             last_name,
@@ -161,33 +159,28 @@ const auth = async (req, res) => {
     try {
         const { username, password } = req.body;
         forChecking()
-        // Find the user by username
+
         const user = await Users.findOne({ where: { username } });
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Check if the account is inactive
         if (!user.isActive) {
             return res.status(403).json({ error: 'Account is inactive' });
         }
 
-        // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Get organization role from the User model
         const organizationRole = user.role;
 
-        // Retrieve all project roles for the user
         const projectRoles = await ProjectMember.findAll({
             where: { user_id: user.id },
             attributes: ['project_id', 'role']
         });
 
-        // Construct an object to store project roles by project ID or name
         const projectRoleMap = projectRoles.reduce((acc, projectRole) => {
             acc[projectRole.project_id] = {
                 role: projectRole.role,
@@ -196,14 +189,13 @@ const auth = async (req, res) => {
             return acc;
         }, {});
 
-        // Generate JWT token with roles in payload
         const token = jwt.sign(
             {
                 id: user.id,
                 guid: user.guid,
                 roles: {
-                    organizationRole,  // Include organization role
-                    projectRoles: projectRoleMap // Include project roles mapped by project ID
+                    organizationRole,  
+                    projectRoles: projectRoleMap 
                 },
             },
             JWT_SECRET,
